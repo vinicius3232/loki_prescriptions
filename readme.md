@@ -5,7 +5,7 @@ Includes 3 different realistic styles of prescriptions: US, UK, DE.
 
 The Script features unique prescription items that players can view after a doctor issued them, as well as a health insurance system that can be manually integrated into other scripts by using the database table for it.
 
-This Script was developed with [K_DISEASES](https://kbase.tebex.io/package/5509125) by [@kypo](https://github.com/gtasnail), but can also be used standalone.
+This Script was developed with [K_DISEASES](https://kbase.tebex.io/package/5509125) by [@kypo](https://github.com/gtasnail) in mind, but can also be used standalone.
 Be aware that this Script does NOT include any functionality for taking the medicine items. If you want a Script like this, you probably already have a Script that handles taking the medicine.
 
 This script was previously paid on Tebex but was now made open source and free.
