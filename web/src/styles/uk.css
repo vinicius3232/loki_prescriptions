@@ -1,0 +1,211 @@
+.uk-main {
+    width: 600px;
+    height: 900px;
+    position: sticky;
+    background-image: url(../assets/nhs-bg.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: darkblue;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.uk-main label {
+    position: absolute;
+    font-size: 14px;
+}
+
+.uk-main input, .uk-main textarea {
+    font-size: 18px;
+    color: grey;
+    overflow: hidden;
+    position: absolute;
+    border: 0;
+    resize: none;
+    background-color: transparent;
+}
+
+.uk-main input:focus, .uk-main textarea:focus {
+    outline: 0;
+    border: 0;
+}
+
+.uk-lbl_stamp {
+    top: 20px;
+    left: 5px;
+}
+
+.uk-lbl_stampwarn {
+    top: 120px;
+    left: 5px;
+    font-size: 8px !important;
+}
+
+.uk-lbl_age {
+    top: 20px;
+    left: 180px;
+}
+
+.uk-lbl_dob {
+    top: 70px;
+    left: 180px;
+}
+
+.uk-lbl_duration {
+    top: 140px;
+    left: 5px;
+}
+
+.uk-lbl_patient {
+    top: 20px;
+    left: 310px;
+}
+
+.uk-lbl_nhsnr {
+    top: 140px;
+    left: 310px;
+}
+
+.uk-lbl_endorsements {
+    top: 190px;
+    left: 5px;
+}
+
+.uk-lbl_signature {
+    left: 5px;
+    top: 660px;
+}
+
+.uk-lbl_date {
+    top: 660px;
+    left: 370px;
+}
+
+.uk-date {
+    top: 690px;
+    left: 400px;
+    font-size: 18px !important;
+    color: grey;
+}
+
+.uk-lbl_info {
+    top: 730px;
+    left: 5px;
+}
+
+
+.uk-age {
+    top: 40px;
+    left: 180px;
+    width: 110px;
+}
+
+.uk-dob {
+    top: 90px;
+    left: 180px;
+    width: 110px;
+}
+
+.uk-duration {
+    top: 145px;
+    left: 250px;
+    width: 50px;
+    text-align: center;
+}
+
+.uk-nhsnr {
+    top: 155px;
+    left: 310px;
+    width: 280px;
+}
+
+.uk-patient {
+    left: 310px;
+    top: 40px;
+    width: 280px;
+    height: 100px;
+}
+
+.uk-container_meds {
+    position: absolute;
+    display: flex;
+    top: 190px;
+    left: 130px;
+    width: 400px;
+    justify-content: center;
+    align-items: center;
+}
+
+.uk-medication-summary {
+    position: unset !important;
+    flex: 1;
+    min-width: 0;
+    color: grey;
+}
+
+.uk-medication-open {
+    margin-left: 12px;
+    color: darkblue;
+    background: rgba(255, 255, 255, 0.75);
+}
+
+.uk-medication {
+    font-size: 18px;
+    color: grey;
+    background-color: transparent;
+    display: inline-block;
+    border: 0;
+}
+
+.uk-medication:disabled {
+    background-color: transparent;
+    color: grey;
+}
+
+.uk-medication:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.uk-amount {
+    width: 50px;
+    position:unset !important;
+}
+
+.uk-amount::-webkit-inner-spin-button {
+    opacity: 1
+}
+
+.uk-amount:disabled::-webkit-inner-spin-button {
+    opacity: 0
+}
+
+.uk-multiplier {
+    position: unset !important;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.uk-notes {
+    left: 130px;
+    top: 230px;
+    width: 450px;
+    height: 400px;
+}
+
+.uk-signature {
+    top: 680px;
+    left: 5px;
+    font-size: 30px !important;
+    font-family: "Mrs Saint Delafield", cursive;
+    font-weight: 400;
+    color: blue !important;
+    width: 300px;
+    text-align: center;
+}
+
+.uk-info {
+    top: 740px;
+    left: 100px;
+    width: 450px;
+    height: 100px;
+}

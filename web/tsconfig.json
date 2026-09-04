@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "useDefineForClassFields": true,
+        "module": "ESNext",
+        "rootDir": "./src",
+        "allowJs": true,
+        "checkJs": true,
+        "isolatedModules": true,
+        "moduleDetection": "force",
+        "outDir": "./build",
+    },
+    "include": ["src/main.ts", "src/global.d.ts", "src/styles/*.css", "src/assets/*.*"],
+    "exclude": [
+        "node_modules"
+    ]
+}

@@ -1,0 +1,189 @@
+.de-main {
+    background-image: url(../assets/de-bg.png); /* image res: 1200x852, keep aspect ratio */
+    width: 1200px;
+    height: 852px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: sticky;
+}
+
+.de-main input, .de-main textarea {
+    overflow: hidden;
+    position: absolute;
+    font-size: 20px;
+    border: 0;
+    resize: none;
+    background-color: transparent;
+}
+
+.de-main input:focus, .de-main textarea:focus {
+    outline: 0;
+    border: 0;
+}
+
+.de-payer {
+    top: 80px;
+    left: 80px;
+    width: 630px;
+}
+
+.de-patientinfo {
+    top: 160px;
+    left: 80px;
+    height: 120px;
+    width: 400px;
+    line-height: 30px;
+}
+
+.de-dob {
+    top: 200px;
+    left: 580px;
+    width: 130px;
+}
+
+.de-expiry {
+    top: 250px;
+    left: 580px;
+    width: 130px;
+}
+
+.de-insurernr {
+    top: 320px;
+    left: 80px;
+    width: 160px;
+}
+
+.de-insurancenr {
+    top: 320px;
+    left: 260px;
+}
+
+.de-status {
+    top: 320px;
+    left: 535px;
+    width: 180px;
+}
+
+.de-officenr {
+    top: 390px;
+    left: 80px;
+    width: 210px;
+}
+
+.de-doctornr {
+    top: 390px;
+    left: 305px;
+    width: 210px;
+}
+
+.de-date {
+    position: absolute;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    top: 390px;
+    left: 535px;
+}
+
+.de-amount {
+    top: 480px;
+    left: 80px;
+    width: 50px;
+    border: 0;
+    background-color: transparent;
+}
+
+.de-amount::-webkit-inner-spin-button {
+    opacity: 1
+}
+
+.de-amount:disabled::-webkit-inner-spin-button {
+    opacity: 0
+}
+
+.de-amount:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.de-amount:disabled {
+    background-color: transparent;
+    color: black;
+}
+
+.de-multiplier {
+    position: absolute;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    top: 480px;
+    left: 150px;
+}
+
+.de-medication {
+    border: 0;
+    font-size: 20px;
+    background-color: transparent;
+    position: absolute;
+    top: 480px;
+    left: 170px
+}
+
+.de-medication-summary {
+    top: 480px;
+    left: 80px;
+    width: 520px;
+    color: #111;
+}
+
+.de-medication-open {
+    position: absolute;
+    top: 465px;
+    left: 730px;
+}
+
+.de-medication:disabled {
+    background-color: transparent;
+    color: #000;
+}
+
+.de-medication:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.de-notes {
+    top: 520px;
+    left: 80px;
+    width: 600px;
+    height: 130px;
+}
+
+
+.de-accidentday {
+    top: 780px;
+    left: 30px;
+    width: 150px;
+}
+
+.de-accidentemployer {
+    top: 780px;
+    left: 195px;
+    width: 370px;
+}
+
+.de-signature {
+    top: 600px;
+    left: 750px;
+    width: 400px;
+    font-size: 40px !important;
+    font-family: "Mrs Saint Delafield", cursive;
+    font-weight: 400;
+    color: blue;
+    text-align: right;
+}
+
+.de-reason {
+    top: 85px;
+    left: 917px;
+    width: 40px;
+    text-align: center;
+}

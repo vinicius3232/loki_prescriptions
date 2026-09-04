@@ -1,0 +1,4 @@
+-- for qbcore, paste this to qbCore/shared/items.lua, don't forget to also add your medicine items!
+
+prescription                 = { name = 'prescription', label = 'Prescription', weight = 0, type = 'item', image = 'prescription.png', unique = false, useable = true, shouldClose = true, description = '' }
+prescription_pad             = { name = 'prescription_pad', label = 'Prescription Pad', weight = 0, type = 'item', image = 'prescription_pad.png', unique = false, useable = true, shouldClose = true, description = '' }

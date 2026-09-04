@@ -1,0 +1,88 @@
+name: Release on Version Bump
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'fxmanifest.lua'
+  workflow_dispatch:
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+          cache: 'npm'
+          cache-dependency-path: './web/package-lock.json'
+
+      - name: Install NUI dependencies
+        working-directory: ./web
+        run: npm ci
+      
+      - name: Build NUI
+        working-directory: ./web
+        run: npm run build
+
+      - name: Extract Version from fxmanifest.lua
+        id: get_version
+        run: |
+          # Extract version string from fxmanifest.lua
+          VERSION=$(grep -E "^\s*version\s+['\"][^'\"]+['\"]" fxmanifest.lua | sed -E "s/.*version\s+['\"]([^'\"]+)['\"].*/\1/")
+          
+          if [ -z "$VERSION" ]; then
+            echo "Error: Could not parse version from fxmanifest.lua"
+            exit 1
+          fi
+
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      - name: Check if release already exists
+        id: check_tag
+        run: |
+          TAG_NAME="v${{ steps.get_version.outputs.VERSION }}"
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+            echo "TAG_EXISTS=true" >> $GITHUB_OUTPUT
+            echo "Tag $TAG_NAME already exists. Skipping release creation."
+          else
+            echo "TAG_EXISTS=false" >> $GITHUB_OUTPUT
+            echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release Package
+        if: steps.check_tag.outputs.TAG_EXISTS == 'false'
+        run: |
+          REPO_NAME=$(basename ${{ github.repository }})
+          ZIP_NAME="${REPO_NAME}-${{ steps.check_tag.outputs.TAG_NAME }}.zip"
+          BUILD_DIR="../tmp_build/${REPO_NAME}"
+
+          mkdir -p "$BUILD_DIR"
+          rsync -av --progress . "$BUILD_DIR" --exclude .git --exclude .github --exclude .gitignore
+
+          cd ../tmp_build
+          zip -r "../${ZIP_NAME}" "${REPO_NAME}" -x "${REPO_NAME}/web/node_modules/*" "${REPO_NAME}/assets/*" "${REPO_NAME}/.vscode/*"
+
+          cd -
+          mv "../${ZIP_NAME}" ./
+          echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        if: steps.check_tag.outputs.TAG_EXISTS == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.check_tag.outputs.TAG_NAME }}
+          name: Release ${{ steps.check_tag.outputs.TAG_NAME }}
+          generate_release_notes: true
+          files: ${{ env.ZIP_NAME }}

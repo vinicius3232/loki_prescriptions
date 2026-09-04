@@ -1,0 +1,129 @@
+-- add this to ox_inventory/data/items.lua
+-- don't forget to copy the icons to ox_inventory/web/images
+-- don't forget to also add any medicine you'd like to use!
+
+['prescription'] = {
+    label = "Prescription",
+    weight = 10,
+    stack = false,
+    close = true
+},
+['prescription_pad'] = {
+    label = "Prescription Pad",
+    weight = 100,
+    stack = true,
+    close = true
+},
+
+
+
+
+-- example for the preconfigured medications from config.lua:
+['tylacare'] = {
+    label = "Tylacare",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['flurimax'] = {
+    label = "Flurimax",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['dayrelief'] = {
+    label = "Dayrelief",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['gutguard'] = {
+    label = "GutGuard",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['stopdiaril'] = {
+    label = "Stopdiaril",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['triptaril'] = {
+    label = "Triptaril",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['ibrofenix'] = {
+    label = "Ibrofenix",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['allerblock'] = {
+    label = "AllerBlock",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['clearairin'] = {
+    label = "Clearairin",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['motionex'] = {
+    label = "Motionex",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['meklirin'] = {
+    label = "Meklirin",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['vironix'] = {
+    label = "Vironix",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['vaxora'] = {
+    label = "Vaxora",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['cycurex'] = {
+    label = "Cycurex",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['painaway'] = {
+    label = "PainAway",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['zithromed'] = {
+    label = "ZithroMed",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['doxallin'] = {
+    label = "Doxallin",
+    weight = 1,
+    stack = true,
+    close = true
+},
+['loprexin'] = {
+    label = "Loprexin",
+    weight = 1,
+    stack = true,
+    close = true
+},

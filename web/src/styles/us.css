@@ -1,0 +1,195 @@
+/* US-Style prescription pad */
+.us-main {
+    width: 600px;
+    height: 800px;
+    background-color: white;
+    position: sticky;
+    overflow: hidden;
+}
+
+.us-header {
+    display: flex;
+}
+
+.us-logo {
+    width: 200px;
+}
+
+.us-header-info {
+    margin-top: 20px;
+}
+
+.us-header-info h1 {
+    font-weight: 100;
+    letter-spacing: 8px;
+}
+
+.us-header-info input {
+    position: absolute;
+    overflow: hidden;
+    border: 0;
+    border-bottom: 1px solid black;
+}
+
+.us-header-info input:disabled {
+    background-color: white;
+    color: black;
+}
+
+.us-header-info input:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.us-input-name {
+    left: 300px;
+    width: 210px;
+    font-family: "Caveat", cursive;
+}
+
+.us-input-adress {
+    left: 255px;
+    width: 255px;
+    font-family: "Caveat", cursive;
+}
+
+.us-input-dob {
+    left: 245px;
+    width: 265px;
+    font-family: "Caveat", cursive;
+}
+
+.us-hr {
+    border-color: black;
+    margin-left: 30px;
+    margin-right: 30px;
+}
+
+
+.us-medication {
+    display: flex;
+    margin-left: 30px;
+    margin-right: 80px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.us-medication-summary {
+    flex: 1;
+    margin-left: 8px;
+    border: 0;
+    color: #222;
+    background: transparent;
+    font-family: "Caveat", cursive;
+    font-size: 20px;
+}
+
+.medication-open {
+    border: 1px solid #b8a993;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    color: #5c4034;
+    background: #f3ecdf;
+    font-size: 12px;
+}
+
+.medication-open:disabled {
+    cursor: default;
+    opacity: 0.45;
+}
+
+.us-medication input {
+    width: 50px;
+    border: 0;
+}
+
+.us-medication input::-webkit-inner-spin-button {
+    opacity: 1
+}
+
+.us-medication input:disabled::-webkit-inner-spin-button {
+    opacity: 0
+}
+
+.us-medication input:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.us-medication input:disabled {
+    background-color: white;
+    color: black;
+}
+
+.us-medication select {
+    border: 0
+}
+
+.us-medication select:disabled {
+    background-color: white;
+    color: #000;
+}
+
+.us-medication select:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.us-notes {
+    margin-top: 30px;
+    margin-left: 30px;
+    width: 540px;
+    height: 300px;
+    margin-bottom: 10px;
+    border: 2px solid gray;
+    resize: none;
+    font-family: "Caveat", cursive;
+    font-size: 20px;
+}
+
+.us-notes:disabled {
+    background-color: white;
+    color: black;
+}
+
+.us-notes:focus {
+    outline: none;
+    border: 0;
+}
+
+.us-footer {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.us-footer div {
+    width: 250px;
+    overflow: hidden;
+}
+
+.us-signature {
+    position: relative;
+    display: inline-block;
+    font-family: "Mrs Saint Delafield", cursive;
+    font-weight: 400;
+    font-style: normal;
+    color: blue;
+    outline: none;
+    padding-bottom: 5px;
+    font-size: 30px;
+    width: 170px;
+    border: 0;
+    background: linear-gradient(#000, #000) center bottom 5px /calc(100% - 10px) 2px no-repeat;
+    background-position-y: 30px;
+    background-color: #fcfcfc;
+}
+
+.us-signature:focus {
+    box-shadow: none;
+    outline: none;
+}
