@@ -1,4 +1,4 @@
-﻿local ESX, QB
+local ESX, QB
 local playerDoses = {}
 
 if GetResourceState('qbx_core') == 'started' or GetResourceState('qb-core') == 'started' then
@@ -41,6 +41,14 @@ CreateThread(function()
                     local isOverdose = checkOverdose(src)
                     TriggerClientEvent('loki_prescriptions:client:applyMedicineEffects', src, med, isOverdose)
                     
+                    if Config.EnableVpNeedsIntegration and med.vp_effects and med.vp_effects.stress and med.vp_effects.stress < 0 then
+                        pcall(function()
+                            if exports.vp_needs and exports.vp_needs.RelieveStress then
+                                exports.vp_needs:RelieveStress(src, math.abs(med.vp_effects.stress))
+                            end
+                        end)
+                    end
+
                     local msg = _U('usedMedicine', med.label)
                     TriggerClientEvent('loki_prescriptions:oxNotify', src, _U('pharmacy'), msg, 'success')
 
@@ -60,6 +68,14 @@ CreateThread(function()
                     local isOverdose = checkOverdose(src)
                     TriggerClientEvent('loki_prescriptions:client:applyMedicineEffects', src, med, isOverdose)
                     
+                    if Config.EnableVpNeedsIntegration and med.vp_effects and med.vp_effects.stress and med.vp_effects.stress < 0 then
+                        pcall(function()
+                            if exports.vp_needs and exports.vp_needs.RelieveStress then
+                                exports.vp_needs:RelieveStress(src, math.abs(med.vp_effects.stress))
+                            end
+                        end)
+                    end
+
                     local msg = _U('usedMedicine', med.label)
                     TriggerClientEvent('loki_prescriptions:oxNotify', src, _U('pharmacy'), msg, 'success')
 
