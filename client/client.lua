@@ -1,5 +1,6 @@
-local Cache = {
-    ped = PlayerPedId()
+﻿local Cache = {
+    ped = PlayerPedId(),
+    points = {}
 }
 
 local nuiCb = RegisterNuiCallback
@@ -18,23 +19,29 @@ RegisterNetEvent('loki_prescriptions:oxNotify', function(heading, description, s
     if style == "info" then
         style = "inform"
     end
-    lib.notify({
-        title = heading,
-        description = description,
-        type = style
-    })
+    if lib and lib.notify then
+        lib.notify({
+            title = heading,
+            description = description,
+            type = style
+        })
+    else
+        print(('^3[%s] %s: %s^7'):format(style, heading, description))
+    end
 end)
 
 local function loadModel(model)
-    RequestModel(model)
+    local hash = type(model) == 'number' and model or joaat(model)
+    RequestModel(hash)
     local i = 0
-    while not HasModelLoaded(model) do
+    while not HasModelLoaded(hash) do
         i = i + 1
         if i > 500 then
-            error('Failed to load model: '..model)
+            error('Falha ao carregar modelo: ' .. tostring(model))
         end
-        Wait(0)
+        Wait(10)
     end
+    return hash
 end
 
 local function loadAnim(dict)
@@ -43,18 +50,20 @@ local function loadAnim(dict)
     while not HasAnimDictLoaded(dict) do
         i = i + 1
         if i > 500 then
-            error('Failed to load anim dict: '..dict)
+            error('Falha ao carregar dicionário de animação: ' .. tostring(dict))
         end
-        Wait(0)
+        Wait(10)
     end
 end
 
-local function openPrescription(data)
+local function openPrescription(data, targetServerId)
+    Cache.targetServerId = targetServerId
     Cache.nuiFocused = not Cache.nuiFocused
     SetNuiFocus(Cache.nuiFocused, Cache.nuiFocused)
+
     if Cache.nuiFocused then
         if not data then
-            SendNUIMessage({event = 'open_nui'})
+            SendNUIMessage({ event = 'open_nui' })
         else
             SendNUIMessage({
                 event = 'show_prescription',
@@ -62,45 +71,50 @@ local function openPrescription(data)
                 date = data.date,
             })
         end
+
         if Config.Anim and Config.Anim.enabled then
-            RequestAnimDict(Config.Anim.dict)
-            while not HasAnimDictLoaded(Config.Anim.dict) do
-                Wait(0)
-            end
+            loadAnim(Config.Anim.dict)
             if Config.Anim.prop then
-                RequestModel(Config.Anim.prop.model)
-                while not HasModelLoaded(Config.Anim.prop.model) do
-                    Wait(0)
-                end
+                local propHash = loadModel(Config.Anim.prop.model)
                 local pCoords = GetEntityCoords(Cache.ped)
-                Cache.prop = CreateObject(Config.Anim.prop.model, pCoords.x, pCoords.y, pCoords.z + 1, true, true, false)
-                AttachEntityToEntity(Cache.prop, Cache.ped, GetPedBoneIndex(Cache.ped, 28422), Config.Anim.prop.offsets[1], Config.Anim.prop.offsets[2], Config.Anim.prop.offsets[3], Config.Anim.prop.rotations[1], Config.Anim.prop.rotations[2], Config.Anim.prop.rotations[3], false, false, false, false, 2, true)
-                SetModelAsNoLongerNeeded(Config.Anim.prop.model)
+                Cache.prop = CreateObject(propHash, pCoords.x, pCoords.y, pCoords.z + 1, true, true, false)
+                AttachEntityToEntity(
+                    Cache.prop, Cache.ped, GetPedBoneIndex(Cache.ped, 28422),
+                    Config.Anim.prop.offsets[1], Config.Anim.prop.offsets[2], Config.Anim.prop.offsets[3],
+                    Config.Anim.prop.rotations[1], Config.Anim.prop.rotations[2], Config.Anim.prop.rotations[3],
+                    false, false, false, false, 2, true
+                )
+                SetModelAsNoLongerNeeded(propHash)
             end
             TaskPlayAnim(Cache.ped, Config.Anim.dict, Config.Anim.anim, 8.0, 1.0, -1, 17, 1.0, false, false, false)
             RemoveAnimDict(Config.Anim.dict)
         end
     else
-        SendNUIMessage({evebt = 'close_nui'})
-        DeleteEntity(Cache.prop)
-        ClearPedTasksImmediately(Cache.ped)
+        SendNUIMessage({ event = 'close_nui' })
+        if Cache.prop and DoesEntityExist(Cache.prop) then
+            DeleteEntity(Cache.prop)
+            Cache.prop = nil
+        end
         ClearPedTasks(Cache.ped)
     end
 end
 
 RegisterNuiCallback('nuiClosed', function()
     Cache.nuiFocused = false
-    SetNuiFocus(Cache.nuiFocused, Cache.nuiFocused)
-    DeleteEntity(Cache.prop)
-    ClearPedTasksImmediately(Cache.ped)
+    SetNuiFocus(false, false)
+    if Cache.prop and DoesEntityExist(Cache.prop) then
+        DeleteEntity(Cache.prop)
+        Cache.prop = nil
+    end
     ClearPedTasks(Cache.ped)
+    Cache.targetServerId = nil
 end)
 
 RegisterNuiCallback('load_config', function()
     SendNUIMessage({
         event = "load_config",
-        style = Config.NuiStyle,
-        locale = Config.TimeFormat,
+        style = Config.NuiStyle or "de",
+        locale = Config.TimeFormat or "pt-BR",
         medicine = Config.Medicine,
         label_submit = _U('nui_submit'),
         label_cancel = _U('nui_cancel')
@@ -108,7 +122,8 @@ RegisterNuiCallback('load_config', function()
 end)
 
 RegisterNuiCallback('submit_prescription', function(data)
-    TriggerServerEvent('loki_prescriptions:createPrescription', data)
+    TriggerServerEvent('loki_prescriptions:createPrescription', data, Cache.targetServerId)
+    Cache.targetServerId = nil
 end)
 
 AddEventHandler('playerSpawned', function()
@@ -119,66 +134,99 @@ RegisterNetEvent('loki_prescriptions:viewPrescription', function(data)
     openPrescription(data)
 end)
 
-RegisterNetEvent('loki_prescriptions:createPrescription', function()
-    openPrescription()
+RegisterNetEvent('loki_prescriptions:createPrescription', function(targetServerId)
+    openPrescription(nil, targetServerId)
 end)
 
-local function createInsuranceNPC()
-    loadModel(Config.Insurance.npc.model)
-    Cache.InsuranceNPC = CreatePed(0, Config.Insurance.npc.model, Config.Insurance.npc.position.x, Config.Insurance.npc.position.y, Config.Insurance.npc.position.z, Config.Insurance.npc.position.w, false, true)
-    SetModelAsNoLongerNeeded(Config.Insurance.npc.model)
-    loadAnim(Config.Insurance.npc.anim.dict)
-    TaskPlayAnim(Cache.InsuranceNPC, Config.Insurance.npc.anim.dict, Config.Insurance.npc.anim.anim, 8.0, 1.0, -1, Config.Insurance.npc.anim.flags, 1.0, false, false, false)
-    FreezeEntityPosition(Cache.InsuranceNPC, true)
-    SetEntityInvincible(Cache.InsuranceNPC, true)
-    SetBlockingOfNonTemporaryEvents(Cache.InsuranceNPC, true)
-
-    if Config.Insurance.blip then
-        Cache.InsuranceBlip = AddBlipForCoord(Config.Insurance.npc.position.x, Config.Insurance.npc.position.y, Config.Insurance.npc.position.z)
-        SetBlipAsShortRange(Cache.InsuranceBlip, Config.Insurance.blip.shortRange)
-        SetBlipSprite(Cache.InsuranceBlip, Config.Insurance.blip.sprite)
-        SetBlipColour(Cache.InsuranceBlip, Config.Insurance.blip.color)
-        BeginTextCommandSetBlipName("STRING")
-        AddTextComponentString(Config.Insurance.blip.label)
-        EndTextCommandSetBlipName(Cache.InsuranceBlip)
-        SetBlipDisplay(Cache.InsuranceBlip, Config.Insurance.blip.display)
-        SetBlipScale(Cache.InsuranceBlip, Config.Insurance.blip.scale)
-    end
-
-    if Config.Target then
-        AddTarget(Cache.InsuranceNPC, _U("insuranceHelpText"), "fa-solid fa-sack-dollar", function()
-            TriggerServerEvent('loki_prescriptions:buyInsurance')
-        end)
+-- Processamento do Resgate com Barra de Progresso Imersiva
+local function handleRedeemPrescription()
+    if lib and lib.progressBar then
+        local completed = lib.progressBar({
+            duration = 2500,
+            label = _U('processingRedeem'),
+            useWhileDead = false,
+            canCancel = true,
+            disable = {
+                move = true,
+                car = true,
+                combat = true
+            },
+            anim = {
+                dict = 'amb@prop_human_atm@male@idle_a',
+                clip = 'idle_a'
+            }
+        })
+        if completed then
+            TriggerServerEvent('loki_prescriptions:redeemPrescription')
+        end
     else
-        AddTextEntry("loki_prescriptions_insurance", _U('insuranceHelpText'))
-        CreateThread(function()
-            local interval = 10000
-            while true do
-                local dist = #(GetEntityCoords(Cache.ped) - Config.Insurance.npc.position)
-                if dist < 2 then
-                    interval = 0
-                    DisplayHelpTextThisFrame("loki_prescriptions_insurance", false)
-                    if IsControlJustPressed(0, 38) then
-                        TriggerServerEvent('loki_prescriptions:buyInsurance')
-                        interval = 5000 -- cooldown
-                    end
-                elseif dist < 50 then
-                    interval = 2000
-                else
-                    interval = 10000
-                end
-                Citizen.Wait(interval)
-            end
-        end)
+        TriggerServerEvent('loki_prescriptions:redeemPrescription')
     end
 end
 
+local function handleBuyInsurance()
+    TriggerServerEvent('loki_prescriptions:buyInsurance')
+end
+
+-- Criação do NPC e Ponto de Convênio Médico
+local function createInsuranceNPC()
+    local hash = loadModel(Config.Insurance.npc.model)
+    local pos = Config.Insurance.npc.position
+    local npc = CreatePed(0, hash, pos.x, pos.y, pos.z, pos.w, false, true)
+    SetModelAsNoLongerNeeded(hash)
+    loadAnim(Config.Insurance.npc.anim.dict)
+    TaskPlayAnim(npc, Config.Insurance.npc.anim.dict, Config.Insurance.npc.anim.anim, 8.0, 1.0, -1, Config.Insurance.npc.anim.flags, 1.0, false, false, false)
+    FreezeEntityPosition(npc, true)
+    SetEntityInvincible(npc, true)
+    SetBlockingOfNonTemporaryEvents(npc, true)
+    Cache.InsuranceNPC = npc
+
+    if Config.Insurance.blip then
+        local blip = AddBlipForCoord(pos.x, pos.y, pos.z)
+        SetBlipAsShortRange(blip, Config.Insurance.blip.shortRange)
+        SetBlipSprite(blip, Config.Insurance.blip.sprite)
+        SetBlipColour(blip, Config.Insurance.blip.color)
+        BeginTextCommandSetBlipName("STRING")
+        AddTextComponentString(Config.Insurance.blip.label)
+        EndTextCommandSetBlipName(blip)
+        SetBlipDisplay(blip, Config.Insurance.blip.display)
+        SetBlipScale(blip, Config.Insurance.blip.scale)
+        Cache.InsuranceBlip = blip
+    end
+
+    if Config.Target then
+        AddTarget(npc, _U("insuranceHelpText", Config.Insurance.price), "fa-solid fa-file-invoice-dollar", handleBuyInsurance)
+    else
+        -- Zero-overhead com lib.points (0.00ms idle)
+        if lib and lib.points then
+            local point = lib.points.new({
+                coords = vector3(pos.x, pos.y, pos.z),
+                distance = 2.0,
+                onEnter = function()
+                    lib.showTextUI(('[E] %s'):format(_U('insuranceHelpText', Config.Insurance.price)))
+                end,
+                onExit = function()
+                    lib.hideTextUI()
+                end,
+                nearby = function()
+                    if IsControlJustPressed(0, 38) then
+                        handleBuyInsurance()
+                        Wait(1000)
+                    end
+                end
+            })
+            table.insert(Cache.points, point)
+        end
+    end
+end
+
+-- Criação dos NPCs e Pontos das Farmácias
 local function createPharmacies()
     Cache.PharmaciePeds = {}
-    for k, v in pairs(Config.Pharmacies) do
-        loadModel(v.pedModel)
-        local ped = CreatePed(0, v.pedModel, v.position.x, v.position.y, v.position.z, v.position.w, false, true)
-        SetModelAsNoLongerNeeded(v.pedModel)
+    for k, v in ipairs(Config.Pharmacies) do
+        local hash = loadModel(v.pedModel)
+        local ped = CreatePed(0, hash, v.position.x, v.position.y, v.position.z, v.position.w, false, true)
+        SetModelAsNoLongerNeeded(hash)
         loadAnim(v.anim.dict)
         TaskPlayAnim(ped, v.anim.dict, v.anim.anim, 8.0, 1.0, -1, v.anim.flags, 1.0, false, false, false)
         FreezeEntityPosition(ped, true)
@@ -199,35 +247,51 @@ local function createPharmacies()
         end
 
         if Config.Target then
-            AddTarget(ped, _U('redeemPrescription'), "fa-solid fa-capsules", function()
-                TriggerServerEvent('loki_prescriptions:redeemPrescription')
-            end)
+            AddTarget(ped, _U('redeemPrescription'), "fa-solid fa-capsules", handleRedeemPrescription)
         else
-            AddTextEntry("loki_prescriptions_pharmacy", _U('redeemPrescription'))
-            CreateThread(function()
-                local interval = 10000
-                while true do
-                    local dist = #(GetEntityCoords(Cache.ped) - v.position)
-                    if dist < 2 then
-                        interval = 0
-                        DisplayHelpTextThisFrame("loki_prescriptions_pharmacy", false)
+            if lib and lib.points then
+                local point = lib.points.new({
+                    coords = vector3(v.position.x, v.position.y, v.position.z),
+                    distance = 2.5,
+                    onEnter = function()
+                        lib.showTextUI(('[E] %s'):format(_U('redeemPrescription')))
+                    end,
+                    onExit = function()
+                        lib.hideTextUI()
+                    end,
+                    nearby = function()
                         if IsControlJustPressed(0, 38) then
-                            TriggerServerEvent('loki_prescriptions:redeemPrescription')
-                            interval = 5000 -- cooldown
+                            handleRedeemPrescription()
+                            Wait(1000)
                         end
-                    elseif dist < 50 then
-                        interval = 2000
-                    else
-                        interval = 10000
                     end
-                    Citizen.Wait(interval)
-                end
-            end)
+                })
+                table.insert(Cache.points, point)
+            end
         end
     end
 end
 
+-- Target de Interação Direta com Paciente Próximo para Médicos
+local function setupDoctorPlayerTarget()
+    if Config.Target and AddGlobalPlayerTarget then
+        AddGlobalPlayerTarget(_U('prescribeToPatient'), 'fa-solid fa-file-prescription', function(entity)
+            local targetServerId = GetPlayerServerId(NetworkGetPlayerIndexFromPed(entity))
+            if targetServerId and targetServerId > 0 then
+                TriggerServerEvent('loki_prescriptions:requestPrescribePad', targetServerId)
+            end
+        end, function(entity)
+            return not IsPedInAnyVehicle(Cache.ped, false) and not IsPedInAnyVehicle(entity, false)
+        end)
+    end
+end
+
+RegisterNetEvent('loki_prescriptions:client:openPadForPatient', function(targetServerId)
+    openPrescription(nil, targetServerId)
+end)
+
 CreateThread(function()
     createInsuranceNPC()
     createPharmacies()
+    setupDoctorPlayerTarget()
 end)

@@ -1,56 +1,44 @@
-# LOKI_PRESCRIPTIONS
+﻿# 💊 LOKI_PRESCRIPTIONS v2.0 (Modernized & Hardened)
 
-A FiveM Script that allows medical jobs to issue interactive prescriptions as items, which players can redeem at a pharmacy to receive their medication.
-Includes 3 different realistic styles of prescriptions: US, UK, DE.
+Sistema avançado e imersivo de receitas médicas, controle farmacológico e farmácias para FiveM, totalmente reformulado para alta performance (0.00ms resmon), segurança à prova de exploits e integração viva com o ecossistema de saúde e necessidades ([`vp_needs`](../vp_needs)).
 
-The Script features unique prescription items that players can view after a doctor issued them, as well as a health insurance system that can be manually integrated into other scripts by using the database table for it.
+---
 
-This Script was developed with [K_DISEASES](https://kbase.tebex.io/package/5509125) by [@kypo](https://github.com/gtasnail) in mind, but can also be used standalone.
-Be aware that this Script does NOT include any functionality for taking the medicine items. If you want a Script like this, you probably already have a Script that handles taking the medicine.
+## 🌟 O que há de Novo na Versão 2.0
 
-This script was previously paid on Tebex but was now made open source and free.
+### 1. 🛡️ Blindagem de Segurança & Anti-Exploit
+- **Validação de Autoridade Server-Side:** O servidor sanitiza todos os medicamentos contra a whitelist do `Config.Medicine`, bloqueando qualquer tentativa de injeção de itens forjados ou quantidades abusivas.
+- **Identidade Médica Canônica:** O nome civil e o registro do médico emissor são extraídos pelo servidor via framework, impedindo falsificação de assinatura por parte do cliente.
+- **Validação de Distância Física no Resgate:** O servidor valida a proximidade do jogador com o balcão da farmácia (`<= 4.0m`). Tentativas de resgate via executor remoto são sumariamente rejeitadas.
+- **Trava de Concorrência (Anti-Dupe):** Mutex atômico por jogador impede que múltiplos pacotes simultâneos causem duplicação de itens.
+- **Fail-Closed de Inventário:** Verificação prévia de capacidade de peso e slots (`CanCarryItem`). A transação só ocorre se o jogador puder carregar todos os itens com segurança.
+- **Consumo Preciso por Slot:** No `ox_inventory`, a receita é consumida amarrada ao slot exato do item, evitando queimar itens errados na mochila.
 
-Preview of the UI:
-![preview US style](./assets/preview_us.png)
-![preview DE style](./assets/preview_de.png)
-![preview UK style](./assets/preview_uk.png)
-![preview med selection](./assets/preview_medselection.png)
+### 2. 🧪 Farmacologia Ativa Integrada com `vp_needs`
+Os medicamentos agora possuem **efeitos farmacológicos reais e imediatos**:
+- **`clearairin` (Broncodilatador):** Interrompe crises agudas de tosse e engasgo/asfixia do módulo `consumption_choking.lua` do `vp_needs`.
+- **`gutguard` (Protetor Gástrico):** Alivia instantaneamente náuseas e vômitos causados por comida estragada ou excesso de álcool.
+- **`painaway` / `ibrofenix` (Analgésicos/Anti-inflamatórios):** Suprimem a dor física e concedem alívio maciço de estresse (`-50` de estresse).
+- **`vironix` / `zithromed` (Antivirais/Antibióticos):** Aceleram a recuperação clínica e aceleram altas médicas na clínica Parsons.
+- **`dayrelief` / `loprexin`:** Estabilizam a estamina e o ritmo cardíaco após esforços intensos.
+- **Mecânica de Overdose:** Ingestão de 3 ou mais comprimidos em menos de 60 segundos induz intoxicação medicamentosa (visão turva, perda de equilíbrio e náuseas).
 
-## Compatibility
-The Script is natively compatible with popular frameworks, inventories and notification scripts. You can find all the integrations in `client/custom.lua` and `server/custom.lua`, as well as placeholders for adding support to your own Scripts.
+### 3. 📋 Ciclo de Vida Médico (Uso Contínuo & Retenção)
+- **Validade Temporal:** As receitas agora expiram após um prazo configurável (padrão de 3 dias reais). A farmácia recusa receitas vencidas.
+- **Receitas de Uso Contínuo (Recargas):** Medicamentos comuns permitem até 3 retiradas. A farmácia carimba a retirada e devolve a receita até esgotar as vias.
+- **Receitas de Retenção Obrigatória:** Antibióticos e analgésicos opioides (tarja preta) são retidos na primeira retirada.
+- **Prescrição Direta no Paciente:** Médicos podem mirar diretamente no paciente próximo via `ox_target` para emitir a receita diretamente no bolso dele.
 
-### Framework
-ESX, QBCore and QBox work out of the box.
+### 4. ⚡ Otimização com `ox_lib` (0.00ms Idle)
+- Substituição de threads manuais de polling por **`lib.points`**. Quando o jogador está fora das farmácias, o script opera com **0.00ms de resmon**.
+- Animações imersivas com barra de progresso visual (`lib.progressBar`) ao retirar remédios no balcão.
 
-### Inventory
-Native integration for ox_inventory, qs-inventory and qb-inventory.
+### 5. 🏥 Economia Hospitalar & Localização
+- **Faturamento Hospitalar:** O dinheiro arrecadado nas farmácias é depositado diretamente na conta institucional do hospital (`Renewed-Banking` / `society_ambulance`).
+- **Localização pt-BR:** Suporte nativo ao Português do Brasil em todas as mensagens e notificações.
 
-### Notifications
-These notification scripts are supported, choose yours in `config.lua` :okokNotify, esx,ox_lib, RiP-Notify, qb-notify, wasabi_notify, mythic_notify, sy_notify
+---
 
-### Target
-Target / Third eye is optional, but recommended as it's prettier. ox_target and qb-target are supported, but the script will fallback to showing a marker with a press E interaction when none of those are found.
+## 📦 Itens e Configuração de Inventário
 
-
-## Install
-Download the latest release from the release section, or clone the repository. If you clone the repository, you have to manually build the NUI from source, refer to [Building](./web/src/building.md) for more details.
-Install the resource like any other: Unzip it in your resource folder.
-Then open the config.lua and configure it to your liking. Remember to also add the prescription, prescription_pad and medicine items you configured to your inventory. The `ITEM_SETUP` folder includes some useful information for that.
-
-
-## How to use
-Using the script is pretty simple. Lets say you have k_diseases installed and configured the script so that doctors can issue prescriptions.
-A player get's sick and goes to the doctor. After all the surrounding RP, the doctor can use the prescription_pad item (you will need to add a way to obtain it yourself), which opens a UI in your configured style. There the doctor chooses the medicine they want to prescribe including the amount, as well as some other information that is only relevant for RP like the patient name, date of birth and the doctor's signature. When the doctor submits that, they'll get a prescription item, which has unique metadata for the entered data attatched. Using that item shows all the details the doctor entered. The doctor can now give the prescription item to the patient. The patient now goes to a pharmacy. Either the pharmacy is configured as an NPC, where the player interacts and trades their prescription and money for the prescribed medicine. Alternatively, if you have a player based pharmacy, the player can hand over the prescription and the entire process can be handled through RP.
-
-Optionally, a player can buy a health insurance (if configured), to reduce the cost of their medication, adding an additional layer of immersion.
-
-
-## If you encounter any problems
-Feel free to open an Issue or a PR if you notice anything not working or need help with anything. I'll try my best to help you.
-
-
-
-
-TODO's:
-* logs for creating and redeeming prescriptions
-* preconfigure medicine items for qb
+Consulte o arquivo [`ITEM_SETUP/items_ox.lua`](./ITEM_SETUP/items_ox.lua) para as definições completas dos itens prontas para copiar e colar no seu `ox_inventory/data/items.lua`.

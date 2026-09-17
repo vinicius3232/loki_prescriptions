@@ -1,29 +1,31 @@
-fx_version 'cerulean'
+﻿fx_version 'cerulean'
 game 'gta5'
 
 lua54 'yes'
 
-author 'Loki Scripts'
-description 'Script for realistic prescriptions'
-version '1.0.0'
+author 'Loki Scripts & Vinicius'
+description 'Sistema Avançado de Prescrições Médicas e Farmacologia'
+version '2.0.0'
 
 shared_scripts {
+    '@ox_lib/init.lua',
     'config.lua',
     'locales.lua',
     'locales/*.lua',
-    -- "@ox_lib/init.lua" -- for ox_lib notify support, uncomment if you want to use it, otherwise not needed
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server/custom.lua',
     'server/database.lua',
-    'server/server.lua'
+    'server/server.lua',
+    'server/medicine_consumer.lua'
 }
 
 client_scripts {
     'client/custom.lua',
-    'client/client.lua'
+    'client/client.lua',
+    'client/medicine_effects.lua'
 }
 
 ui_page {

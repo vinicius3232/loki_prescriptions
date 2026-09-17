@@ -1,108 +1,165 @@
-local function versionChecker()
-    local currentVersion = GetResourceMetadata(GetCurrentResourceName(), 'version', 0)
-    if not currentVersion or currentVersion == "" then
-        error("Unable to read resource version")
-        return 
-    end
+﻿local activeRedeems = {}
 
-    PerformHttpRequest('https://api.github.com/repos/LokiLeiche/loki_prescriptions/releases/latest', function(status, response, headers)
-        if status ~= 200 or not response then return end
-
-        local release = json.decode(response)
-        if release and release.tag_name then
-            local latestVersion = release.tag_name:gsub('^v', '')
-
-            if latestVersion ~= currentVersion then
-                print('^1You are using an old version of loki_prescriptions!^0')
-                print('Your version: '..currentVersion..' | latest version: '..latestVersion)
-                print('Please update the resource for the best experience. You can download the latest version from https://github.com/LokiLeiche/loki_prescriptions/releases/latest')
-            elseif not Config.VersionCheckOmitLatest then
-                print('^2You are using the latest version of loki_prescriptions!^0')
-            end
-        end
-    end)
-end
-
-if Config.VersionCheck then
-    Citizen.CreateThread(function()
-        Wait(5000)
-        versionChecker()
-    end)
-end
-
-
-Config.Notification = string.lower(Config.Notification)
 local function notify(type, msg, heading, src)
-    if Config.Notification == 'custom' then
+    heading = heading or _U('pharmacy')
+    if Config.Notification == 'lib' then
+        TriggerClientEvent('loki_prescriptions:oxNotify', src, heading, msg, type)
+    elseif Config.Notification == 'custom' then
         CustomNotify(type, msg, heading, src)
     elseif Config.Notification == 'okoknotify' then
         TriggerClientEvent('okokNotify:Alert', src, heading, msg, 5000, type, true)
     elseif Config.Notification == 'esx' then
         TriggerClientEvent('esx:showNotification', src, msg, type, 5000)
-    elseif Config.Notification == 'rip-notify' then
-        TriggerClientEvent('RiP-Notify:Notify', src, type, 5000, heading, msg)
     elseif Config.Notification == 'qb' then
-        TriggerClientEvent('QBCore:Notify', src, msg, 'primary', 5000)
+        TriggerClientEvent('QBCore:Notify', src, msg, type == 'error' and 'error' or 'success', 5000)
     elseif Config.Notification == 'wasabi_notify' then
         TriggerClientEvent('wasabi_notify:notify', src, heading, msg, 5000, type, true)
-    elseif Config.Notification == 'mythic_notify' then
-        if type == 'info' then
-            type = 'inform'
-        end
-        TriggerClientEvent('mythic_notify:client:SendAlert', src, { type = type, text = msg})
-    elseif Config.Notification == 'sy_notify' then
-        TriggerClientEvent('SY_Notify:Alert', src, heading, msg, 5000, type)
-    elseif Config.Notification == "lib" then
-        TriggerClientEvent('loki_prescriptions:oxNotify', src, heading, msg, type)
     else
-        error('Unable to find notify system from config')
+        TriggerClientEvent('loki_prescriptions:oxNotify', src, heading, msg, type)
     end
 end
 
-
 local function hasInsurance(src)
-    local rs = SQL("SELECT date FROM prescription_insurance WHERE identifier = ? LIMIT 1", {GetPlayerIdentifier(src)})
-    if not rs[1] then
+    local ident = GetPlayerIdentifier(src)
+    if not ident then return false end
+    local rs = SQL("SELECT date FROM prescription_insurance WHERE identifier = ? LIMIT 1", {ident})
+    if not rs or not rs[1] then
         return false
     else
         if not Config.Insurance.duration then return true end
         local time = os.time() * 1000
-        if time - rs[1].date < Config.Insurance.duration * 1000 then return true else return false end
+        local recordDate = tonumber(rs[1].date) or 0
+        if time - recordDate < Config.Insurance.duration * 1000 then
+            return true
+        else
+            return false
+        end
     end
 end
 exports('hasInsurance', hasInsurance)
 
-
-RegisterServerEvent('loki_prescriptions:createPrescription', function(data)
+-- Emissão de Receita Médica com Sanitização Estrita e Carimbo de Autoridade
+RegisterServerEvent('loki_prescriptions:createPrescription', function(rawPayload, targetServerId)
     local src = source
-    print('creating prescription!')
-    print(json.encode(data))
-    data.date = os.time()
+    if not src or src <= 0 then return end
 
+    -- Verificação de cargo médico/farmacêutico
     if Config.PrescriptionJobs then
         local playerjob = GetPlayerJob(src)
         local allowed = false
-        for _, v in pairs(Config.PrescriptionJobs) do
+        for _, v in ipairs(Config.PrescriptionJobs) do
             if v == playerjob then
                 allowed = true
                 break
             end
         end
-        if not allowed then return end
+        if not allowed then
+            notify("error", _U("invalidJob"), _U("pharmacy"), src)
+            return
+        end
     end
-    print('job check')
-    if not HasItem(src, Config.PrescriptionPadItem) then return end
-    print('item')
 
-    data.timestamp = os.time()
-    GiveItem(src, Config.PrescriptionItem, 1, data)
+    -- Verificação da posse física do bloco de receitas
+    if not HasItem(src, Config.PrescriptionPadItem) then
+        notify("error", _U("noPrescription"), _U("pharmacy"), src)
+        return
+    end
+
+    if type(rawPayload) ~= 'table' then return end
+
+    -- Sanitização dos medicamentos prescritos contra whitelist do servidor
+    local sanitizedMeds = {}
+    local rawMeds = rawPayload.medications
+    if type(rawMeds) ~= 'table' then
+        if rawPayload.medication and rawPayload.amount then
+            rawMeds = {{ label = rawPayload.medication, amount = rawPayload.amount }}
+        else
+            return
+        end
+    end
+
+    if #rawMeds == 0 or #rawMeds > (Config.MaxDifferentMeds or 4) then return end
+
+    local minRefills = 99
+    for _, rawMed in ipairs(rawMeds) do
+        local medDef = nil
+        for _, itemCfg in ipairs(Config.Medicine) do
+            if itemCfg.label == rawMed.label or itemCfg.item == rawMed.item then
+                medDef = itemCfg
+                break
+            end
+        end
+
+        local amount = tonumber(rawMed.amount)
+        if medDef and amount and amount > 0 and amount % 1 == 0 then
+            local maxAllowed = Config.MaxMedsPerPrescription or 5
+            local validAmount = math.min(amount, maxAllowed)
+            local medRefills = medDef.refills or 1
+            if medRefills < minRefills then
+                minRefills = medRefills
+            end
+
+            table.insert(sanitizedMeds, {
+                item = medDef.item,
+                label = medDef.label,
+                cost = medDef.cost,
+                amount = validAmount,
+                refills_total = medRefills,
+                refills_remaining = medRefills
+            })
+        end
+    end
+
+    if #sanitizedMeds == 0 then return end
+
+    local currentTime = os.time()
+    local expirationSeconds = (Config.ExpirationDays or 3) * 86400
+    local canonicalDoctorCid = GetPlayerIdentifier(src)
+    local canonicalDoctorName = GetCharacterName(src)
+
+    local prescriptionMetadata = {
+        data = {
+            patient = rawPayload.patient and tostring(rawPayload.patient):sub(1, 40) or "Paciente",
+            doctor = canonicalDoctorName,
+            doctor_cid = canonicalDoctorCid,
+            medications = sanitizedMeds,
+            notes = rawPayload.notes and tostring(rawPayload.notes):sub(1, 100) or "",
+            refills_remaining = minRefills,
+            refills_total = minRefills,
+            created_at = currentTime,
+            expires_at = currentTime + expirationSeconds,
+        },
+        date = currentTime,
+        description = ("Dr(a). %s | Válida até: %s"):format(
+            canonicalDoctorName,
+            os.date("%d/%m/%Y", currentTime + expirationSeconds)
+        )
+    }
+
+    -- Suporte à entrega direta ao paciente próximo (se especificado)
+    local recipientSrc = src
+    if targetServerId and targetServerId > 0 and targetServerId ~= src then
+        local doctorPed = GetPlayerPed(src)
+        local targetPed = GetPlayerPed(targetServerId)
+        if targetPed > 0 and #(GetEntityCoords(doctorPed) - GetEntityCoords(targetPed)) <= 3.5 then
+            recipientSrc = targetServerId
+        end
+    end
+
+    local given = GiveItem(recipientSrc, Config.PrescriptionItem, 1, prescriptionMetadata)
+    if given then
+        if recipientSrc ~= src then
+            notify('info', _U('prescriptionGivenToPatient', GetCharacterName(recipientSrc)), _U('pharmacy'), src)
+            notify('info', _U('prescriptionReceived', canonicalDoctorName), _U('pharmacy'), recipientSrc)
+        else
+            notify('info', _U('medsGiven'), _U('pharmacy'), src)
+        end
+    end
 end)
-
 
 function ShowPrescription(src, properties)
     TriggerClientEvent('loki_prescriptions:viewPrescription', src, properties)
 end
-
 
 function CreatePrescription(src)
     if not HasItem(src, Config.PrescriptionPadItem) then return end
@@ -110,7 +167,7 @@ function CreatePrescription(src)
     if Config.PrescriptionJobs then
         local playerjob = GetPlayerJob(src)
         local allowed = false
-        for _, v in pairs(Config.PrescriptionJobs) do
+        for _, v in ipairs(Config.PrescriptionJobs) do
             if v == playerjob then
                 allowed = true
                 break
@@ -125,25 +182,29 @@ function CreatePrescription(src)
     TriggerClientEvent('loki_prescriptions:createPrescription', src)
 end
 
-
+-- Contratação do Plano de Saúde
 RegisterServerEvent('loki_prescriptions:buyInsurance', function()
     local src = source
-    if not src then return end
+    if not src or src <= 0 then return end
+
     local npcPos = vector3(Config.Insurance.npc.position.x, Config.Insurance.npc.position.y, Config.Insurance.npc.position.z)
-    if #(npcPos - GetEntityCoords(GetPlayerPed(src))) > 10 then return end
+    if #(npcPos - GetEntityCoords(GetPlayerPed(src))) > 10.0 then return end
 
     local ident = GetPlayerIdentifier(src)
+    if not ident then return end
+
     local rs = SQL("SELECT date FROM prescription_insurance WHERE identifier = ? LIMIT 1", {ident})
-    if rs[1] then
+    if rs and rs[1] then
         local time = os.time() * 1000
-        if not Config.Insurance.duration or time - rs[1].date < Config.Insurance.duration * 1000 then
+        local recordDate = tonumber(rs[1].date) or 0
+        if not Config.Insurance.duration or (time - recordDate < Config.Insurance.duration * 1000) then
             notify('info', _U('insuranceStillValid'), _U('insurancy'), src)
             return
         end
     end
 
     if RemovePlayerMoney(src, Config.Insurance.price) then
-        if rs[1] then
+        if rs and rs[1] then
             SQL("UPDATE prescription_insurance SET date = CURRENT_TIMESTAMP() WHERE identifier = ? LIMIT 1", {ident})
         else
             SQL("INSERT INTO prescription_insurance (identifier) VALUES (?)", {ident})
@@ -154,50 +215,176 @@ RegisterServerEvent('loki_prescriptions:buyInsurance', function()
     end
 end)
 
-
+-- Resgate de Medicamentos na Farmácia com Mutex, Distância e Fail-Closed
 RegisterServerEvent('loki_prescriptions:redeemPrescription', function()
     local src = source
+    if not src or src <= 0 then return end
 
+    -- Trava atômica por jogador com timeout de 10s
+    local now = os.time()
+    if activeRedeems[src] and (now - activeRedeems[src]) < 10 then
+        notify('error', _U('busyProcessing'), _U('pharmacy'), src)
+        return
+    end
+    activeRedeems[src] = now
+
+    local function releaseLock()
+        activeRedeems[src] = nil
+    end
+
+    -- Validação de Proximidade Física do Balcão da Farmácia no Servidor
+    local pedCoords = GetEntityCoords(GetPlayerPed(src))
+    local isNearAnyPharmacy = false
+    local maxDist = Config.MaxRedeemDistance or 4.0
+
+    for _, pharmacy in ipairs(Config.Pharmacies) do
+        local pPos = vector3(pharmacy.position.x, pharmacy.position.y, pharmacy.position.z)
+        if #(pedCoords - pPos) <= maxDist then
+            isNearAnyPharmacy = true
+            break
+        end
+    end
+
+    if not isNearAnyPharmacy then
+        releaseLock()
+        notify('error', _U('tooFarFromPharmacy'), _U('pharmacy'), src)
+        return
+    end
+
+    -- Obtenção do item no inventário
     local item = GetItem(src, Config.PrescriptionItem)
     if not item then
+        releaseLock()
         notify('info', _U('noPrescription'), _U('pharmacy'), src)
         return
     end
 
     local metadata = item.metadata or item.info
-    local prescribed = metadata.data.medications or {{
-        label = metadata.data.medication,
-        amount = metadata.data.amount
+    if not metadata or not metadata.data then
+        releaseLock()
+        notify('error', _U('noPrescription'), _U('pharmacy'), src)
+        return
+    end
+
+    local pData = metadata.data
+
+    -- Verificação de Expiração Temporal
+    if pData.expires_at and now > tonumber(pData.expires_at) then
+        releaseLock()
+        notify('error', _U('prescriptionExpired'), _U('pharmacy'), src)
+        return
+    end
+
+    -- Mapeamento dos medicamentos a serem concedidos
+    local prescribed = pData.medications or {{
+        label = pData.medication,
+        amount = pData.amount
     }}
-    local items = {}
-    local price = 0
-    for _, prescriptionMed in pairs(prescribed) do
-        local med
-        for _, v in pairs(Config.Medicine) do
-            if v.label == prescriptionMed.label then
-                med = v
+
+    local itemsToGive = {}
+    local totalPrice = 0
+
+    for _, prescriptionMed in ipairs(prescribed) do
+        local medConfig = nil
+        for _, v in ipairs(Config.Medicine) do
+            if v.label == prescriptionMed.label or v.item == prescriptionMed.item then
+                medConfig = v
                 break
             end
         end
+
         local amount = tonumber(prescriptionMed.amount)
-        if not med or not amount or amount < 1 then
-            error('Unable to find valid medication in prescription')
+        if not medConfig or not amount or amount < 1 then
+            releaseLock()
+            notify('error', 'Medicamento inválido na receita.', _U('pharmacy'), src)
+            return
         end
-        table.insert(items, {med = med, amount = math.floor(amount)})
-        price = price + med.cost * math.floor(amount)
+
+        table.insert(itemsToGive, { med = medConfig, amount = math.floor(amount) })
+        totalPrice = totalPrice + (medConfig.cost * math.floor(amount))
     end
-    if hasInsurance(src) then
-        price = math.floor(price * Config.Insurance.reduction)
-    end
-    if price > 0 then
-        if not RemovePlayerMoney(src, price) then
-            notify('info', _U('insufficientFunds'), _U('pharmacy'), src)
+
+    -- Verificação Prévia de Capacidade de Inventário (Fail-Closed)
+    for _, giveData in ipairs(itemsToGive) do
+        if not CanCarryItem(src, giveData.med.item, giveData.amount) then
+            releaseLock()
+            notify('error', _U('inventoryFull'), _U('pharmacy'), src)
             return
         end
     end
-    RemoveItem(src, Config.PrescriptionItem, metadata)
-    for _, item in pairs(items) do
-        GiveItem(src, item.med.item, item.amount)
+
+    -- Aplicação do Desconto do Convênio Médico
+    local hasHealthPlan = hasInsurance(src)
+    if hasHealthPlan then
+        totalPrice = math.floor(totalPrice * (Config.Insurance.reduction or 0.35))
     end
+
+    -- Cobrança Financeira do Paciente
+    if totalPrice > 0 then
+        if not RemovePlayerMoney(src, totalPrice) then
+            releaseLock()
+            notify('error', _U('insufficientFunds'), _U('pharmacy'), src)
+            return
+        end
+        -- Depósito do faturamento na conta do hospital
+        DepositHospitalMoney(totalPrice)
+    end
+
+    -- Controle de Vias e Retenção
+    local currentRefills = tonumber(pData.refills_remaining) or 1
+    if currentRefills > 1 then
+        -- Decrementa 1 via e carimba nos metadados
+        pData.refills_remaining = currentRefills - 1
+        metadata.data = pData
+        metadata.description = ("Dr(a). %s | Restam: %d retirada(s)"):format(
+            pData.doctor or "Médico",
+            pData.refills_remaining
+        )
+
+        local updated = UpdateItemMetadata(src, item.slot, metadata)
+        if not updated then
+            -- Se não conseguiu atualizar metadados no slot, remove a unidade
+            RemoveItem(src, Config.PrescriptionItem, metadata, item.slot)
+        end
+        notify('info', _U('refillRemaining', pData.refills_remaining), _U('pharmacy'), src)
+    else
+        -- Última via: receita é retida e removida do inventário
+        RemoveItem(src, Config.PrescriptionItem, metadata, item.slot)
+        notify('info', _U('refillExhausted'), _U('pharmacy'), src)
+    end
+
+    -- Entrega dos medicamentos ao paciente
+    for _, giveData in ipairs(itemsToGive) do
+        GiveItem(src, giveData.med.item, giveData.amount)
+    end
+
     notify('info', _U('medsGiven'), _U('pharmacy'), src)
+    releaseLock()
+end)
+
+RegisterServerEvent('loki_prescriptions:requestPrescribePad', function(targetServerId)
+    local src = source
+    if not src or src <= 0 then return end
+
+    if Config.PrescriptionJobs then
+        local playerjob = GetPlayerJob(src)
+        local allowed = false
+        for _, v in ipairs(Config.PrescriptionJobs) do
+            if v == playerjob then
+                allowed = true
+                break
+            end
+        end
+        if not allowed then
+            notify("error", _U("invalidJob"), _U("pharmacy"), src)
+            return
+        end
+    end
+
+    if not HasItem(src, Config.PrescriptionPadItem) then
+        notify("error", _U("noPrescription"), _U("pharmacy"), src)
+        return
+    end
+
+    TriggerClientEvent('loki_prescriptions:client:openPadForPatient', src, targetServerId)
 end)
