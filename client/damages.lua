@@ -581,7 +581,31 @@ RegisterNUICallback("damages/healBone", function(data, cb)
     end
   end
 
-  -- Play progress bar and animation BEFORE the server call
+  -- Interactive Minigames Branch (Pluto & Lation Engine)
+  if Config.InteractiveMinigames and Config.InteractiveMinigames.enabled then
+    local itemStr = tostring(data.item):lower()
+    local isBulletWound = damages and damages[data.bone] and damages[data.bone].bullet
+
+    if isBulletWound and Config.InteractiveMinigames.bullet then
+      exports.loki_prescriptions:StartBulletMinigame(Damages.targetId, data.bone)
+      cb(true)
+      return
+    elseif (itemStr:find("suture") or itemStr:find("surgical")) and Config.InteractiveMinigames.suture then
+      exports.loki_prescriptions:StartSutureMinigame(Damages.targetId, data.bone)
+      cb(true)
+      return
+    elseif (itemStr:find("clamp") or itemStr:find("artery")) and Config.InteractiveMinigames.clamp then
+      exports.loki_prescriptions:StartClampMinigame(Damages.targetId, data.bone)
+      cb(true)
+      return
+    elseif (itemStr:find("bandage") or itemStr:find("dressing") or itemStr:find("gauze")) and Config.InteractiveMinigames.bandage then
+      exports.loki_prescriptions:StartBandageMinigame(Damages.targetId, data.bone)
+      cb(true)
+      return
+    end
+  end
+
+  -- Fallback: Play progress bar and animation BEFORE the server call
   local clipOptions = { "idle_a", "idle_b", "idle_c" }
   local itemData = Bridge.Inventory.getItemData(data.item)
 
@@ -621,11 +645,17 @@ RegisterNUICallback("damages/healBone", function(data, cb)
   cb(result)
 end)
 
--- NUI callback: check target's pulse (5-second progress bar, sets pulseChecked flag)
+-- NUI callback: check target's pulse (Launches BP Minigame or fallback progress bar)
 RegisterNUICallback("damages/checkPulse", function(_, _)
   if Damages.antiSpam > GetGameTimer() then return end
 
-  Damages.antiSpam = GetGameTimer() + 5000
+  Damages.antiSpam = GetGameTimer() + 4000
+
+  if Config.InteractiveMinigames and Config.InteractiveMinigames.enabled and Config.InteractiveMinigames.bp then
+    exports.loki_prescriptions:StartBPMinigame(Damages.targetId, "rightArm")
+    Damages.pulseChecked = true
+    return
+  end
 
   local done = Bridge.Progress.StartCircle({
     duration = 5000,

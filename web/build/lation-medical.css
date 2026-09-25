@@ -646,3 +646,892 @@
   font-size: 1.6rem;
   color: var(--lation-emerald);
 }
+
+/* =========================================================================
+   LATION UI - PLUTO MEDICAL MINIGAMES INTEGRATION STYLES
+   Ultra-realistic surgery, arterial extraction, hemostasis, BP, dressing,
+   breathalyzer and swipe card components.
+   ========================================================================= */
+
+.hidden {
+  display: none !important;
+}
+
+/* Minigame Overlays (Lation Dark Glass Backdrop) */
+.lation-minigame-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(4, 7, 14, 0.82);
+  backdrop-filter: blur(14px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100000;
+  user-select: none;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: var(--lation-text);
+  animation: lationFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes lationFadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.lation-minigame-window {
+  background: var(--lation-bg);
+  border: 1px solid var(--lation-border-light);
+  border-radius: var(--lation-radius-xl);
+  padding: clamp(16px, 1.8vw, 36px);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.lation-minigame-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.lation-minigame-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: var(--lation-radius-pill);
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--lation-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.lation-minigame-badge.red {
+  background: rgba(244, 63, 94, 0.15);
+  color: var(--lation-rose);
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+.lation-minigame-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: clamp(16px, 1.2vw, 22px);
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.lation-minigame-title i {
+  color: var(--lation-cyan);
+}
+
+.lation-minigame-hint {
+  font-size: 0.8rem;
+  color: var(--lation-text-muted);
+  letter-spacing: 0.5px;
+}
+
+.lation-minigame-footer {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--lation-text-dim);
+}
+
+.lation-minigame-footer kbd, .bp-esc-hint kbd {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: #fff;
+}
+
+/* 1. Suture Minigame */
+.suture-window {
+  width: clamp(480px, 46vw, 920px);
+}
+
+#suture-canvas-area {
+  position: relative;
+  width: 100%;
+  height: clamp(280px, 36vh, 650px);
+  background: #1e1212;
+  border-radius: var(--lation-radius-lg);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+  overflow: hidden;
+  cursor: none;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.8);
+}
+
+#suture-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#suture-needle, .suture-needle {
+  position: absolute;
+  width: clamp(55px, 4.5vw, 100px);
+  height: clamp(55px, 4.5vw, 100px);
+  pointer-events: none;
+  z-index: 20;
+  display: none;
+  background-image: url('img/needle.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  transform: rotate(-10deg);
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.7));
+}
+
+.suture-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--lation-radius-pill);
+  overflow: hidden;
+  margin-top: 14px;
+}
+
+#suture-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--lation-cyan), var(--lation-emerald));
+  box-shadow: 0 0 16px var(--lation-emerald-glow);
+  transition: width 0.25s ease-out;
+}
+
+/* 2. Clamp & Hemostasis Minigame */
+.clamp-window {
+  width: clamp(580px, 56vw, 1100px);
+}
+
+#clamp-canvas-area {
+  position: relative;
+  width: 100%;
+  height: clamp(320px, 42vh, 720px);
+  background: #1b0e0e;
+  border-radius: var(--lation-radius-lg);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  overflow: hidden;
+  cursor: crosshair;
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.9);
+}
+
+#clamp-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 3. Bullet Extraction Minigame */
+.extraction-game {
+  width: clamp(520px, 50vw, 1000px);
+}
+
+#extraction-canvas-area {
+  position: relative;
+  width: 100%;
+  height: clamp(350px, 44vh, 750px);
+  background: transparent;
+  border-radius: var(--lation-radius-lg);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  overflow: hidden;
+  cursor: crosshair;
+  box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.9);
+}
+
+#extraction-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.minigame-bullet-item {
+  position: absolute;
+  width: clamp(45px, 3.5vw, 80px);
+  height: clamp(45px, 3.5vw, 80px);
+  cursor: grab;
+  z-index: 15;
+  filter: drop-shadow(0 0 12px rgba(0, 0, 0, 0.9));
+  transform: rotate(28deg);
+  transition: transform 0.1s;
+}
+
+.minigame-bullet-item.dragging {
+  cursor: grabbing;
+  transform: rotate(28deg) scale(1.1);
+}
+
+.minigame-bullet-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.minigame-target-zone {
+  position: absolute;
+  width: clamp(65px, 4.5vw, 110px);
+  height: clamp(65px, 4.5vw, 110px);
+  border: 2px dashed var(--lation-emerald);
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--lation-emerald);
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  bottom: 20px;
+  right: 20px;
+  z-index: 8;
+  animation: lationTargetPulse 2s infinite ease-in-out;
+}
+
+@keyframes lationTargetPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+  50% { transform: scale(1.08); box-shadow: 0 0 25px rgba(16, 185, 129, 0.5); }
+}
+
+/* 4. Blood Pressure Minigame */
+#bp-minigame-container {
+  background: rgba(4, 7, 14, 0.88);
+}
+
+.bp-game {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+#bp-arm-image {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(15px 0 40px rgba(0, 0, 0, 0.8));
+  z-index: 1;
+}
+
+#bp-game-area {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+#bp-target-zone {
+  position: absolute;
+  width: clamp(240px, 18vw, 480px);
+  height: clamp(140px, 12vh, 300px);
+  border: 2px dashed rgba(6, 182, 212, 0.7);
+  background: rgba(6, 182, 212, 0.2);
+  top: 32vh;
+  left: 4vw;
+  transform: rotate(59deg);
+  border-radius: var(--lation-radius-xl);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(12px, 0.9vw, 20px);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  z-index: 5;
+  transition: all 0.3s;
+}
+
+#bp-cuff-item {
+  position: absolute;
+  width: clamp(230px, 17vw, 460px);
+  height: auto;
+  cursor: grab;
+  z-index: 20;
+  pointer-events: auto;
+  filter: drop-shadow(0 0 35px rgba(0, 0, 0, 0.95));
+}
+
+#bp-machine-display {
+  position: absolute;
+  right: 6%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: clamp(320px, 28vw, 640px);
+  pointer-events: none;
+  z-index: 25;
+}
+
+#bp-machine-img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.9));
+}
+
+#bp-values {
+  position: absolute;
+  top: 48%;
+  left: 53%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(20px, 1.8vw, 44px);
+  font-weight: 900;
+  text-align: center;
+  color: #111;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+#bp-values #pulse-rate {
+  font-size: clamp(12px, 1vw, 24px);
+  color: #333;
+}
+
+#bp-tube-svg {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#bp-tube-base {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.7);
+  stroke-width: clamp(14px, 1.2vw, 30px);
+  stroke-linecap: round;
+  filter: blur(4px);
+}
+
+#bp-tube-main {
+  fill: none;
+  stroke: #1e293b;
+  stroke-width: clamp(10px, 0.8vw, 22px);
+  stroke-linecap: round;
+}
+
+#bp-tube-highlight {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.2);
+  stroke-width: clamp(3px, 0.2vw, 6px);
+  stroke-linecap: round;
+  stroke-dasharray: 4, 14;
+}
+
+.bp-esc-hint {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  font-size: 0.8rem;
+  color: var(--lation-text-dim);
+  z-index: 30;
+}
+
+/* 5. Trauma Dressing Minigame */
+.dressing-window {
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.dressing-header {
+  position: absolute;
+  top: clamp(15px, 2vh, 32px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1300px, 92vw);
+  background: var(--lation-bg);
+  border: 1px solid var(--lation-border-light);
+  border-radius: var(--lation-radius-lg);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(16px);
+  z-index: 20;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.dressing-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 800;
+  font-size: clamp(12px, 0.9vw, 18px);
+  letter-spacing: 1px;
+}
+
+.dressing-title i {
+  color: var(--lation-emerald);
+  font-size: 1.2rem;
+}
+
+.dressing-steps {
+  display: flex;
+  gap: 10px;
+}
+
+.step-indicator {
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--lation-border);
+  border-radius: var(--lation-radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--lation-text-dim);
+  letter-spacing: 0.8px;
+  transition: all 0.3s;
+}
+
+.step-indicator.active {
+  background: rgba(6, 182, 212, 0.18);
+  color: var(--lation-cyan);
+  border-color: rgba(6, 182, 212, 0.45);
+}
+
+.step-indicator.complete {
+  background: rgba(16, 185, 129, 0.18);
+  color: var(--lation-emerald);
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+.dressing-body {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.tool-tray {
+  position: absolute;
+  left: clamp(20px, 2.5vw, 50px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: clamp(100px, 9vw, 160px);
+  background: var(--lation-bg);
+  border: 1px solid var(--lation-border-light);
+  border-radius: var(--lation-radius-xl);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 16px;
+  z-index: 25;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(20px);
+}
+
+.tool-item {
+  aspect-ratio: 1;
+  background: var(--lation-panel-card);
+  border: 1px solid var(--lation-border);
+  border-radius: var(--lation-radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--lation-text-muted);
+  transition: all 0.2s ease;
+}
+
+.tool-item i {
+  font-size: 1.8rem;
+}
+
+.tool-item span {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.tool-item:hover:not(.disabled) {
+  border-color: var(--lation-emerald);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.tool-item.active {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: var(--lation-emerald);
+  color: #fff;
+  box-shadow: 0 0 20px var(--lation-emerald-glow);
+}
+
+.tool-item.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+#dressing-canvas-area {
+  flex-grow: 1;
+  position: relative;
+  background: radial-gradient(circle at center, #241414 0%, #0d0606 100%);
+  cursor: none;
+}
+
+#limb-visual-container {
+  position: absolute;
+  inset: 0;
+}
+
+#dressing-base-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#active-tool-cursor {
+  position: fixed;
+  width: clamp(55px, 5vw, 110px);
+  height: clamp(55px, 5vw, 110px);
+  pointer-events: none;
+  z-index: 1000;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  filter: drop-shadow(0 0 12px rgba(0, 0, 0, 0.8));
+}
+
+#active-tool-cursor.scrubbing {
+  transform: scale(0.85) rotate(20deg);
+}
+
+.cleaning-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 90;
+  animation: particleFade 0.6s forwards;
+}
+
+@keyframes particleFade {
+  0% { transform: scale(1) translate(0, 0); opacity: 1; }
+  100% { transform: scale(0) translate(var(--tx), var(--ty)); opacity: 0; }
+}
+
+.foam-layer {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+  filter: blur(4px);
+  z-index: 40;
+}
+
+#gauze-target {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: clamp(140px, 12vw, 260px);
+  height: clamp(140px, 12vw, 260px);
+  border: 2px dashed var(--lation-cyan);
+  background: rgba(6, 182, 212, 0.15);
+  border-radius: var(--lation-radius-md);
+  color: var(--lation-cyan);
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 30;
+  animation: lationTargetPulse 2s infinite;
+}
+
+#placed-gauze {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: clamp(140px, 12vw, 260px);
+  height: clamp(140px, 12vw, 260px);
+  background: #f1f5f9;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--lation-radius-sm);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 35;
+}
+
+.tape-strip {
+  position: absolute;
+  height: clamp(24px, 2vw, 42px);
+  background: rgba(254, 240, 138, 0.85);
+  border: 1px solid rgba(202, 138, 4, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  z-index: 38;
+}
+
+.dressing-footer {
+  position: absolute;
+  bottom: clamp(20px, 2.5vh, 40px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--lation-bg);
+  border: 1px solid var(--lation-border-light);
+  border-radius: var(--lation-radius-pill);
+  padding: 10px 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  z-index: 30;
+}
+
+.dressing-instruction {
+  font-size: 0.85rem;
+  color: var(--lation-text);
+  font-weight: 600;
+}
+
+/* 6. Breathalyzer Device */
+#breathalyzer-view {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  background: transparent;
+  z-index: 100000;
+  pointer-events: none;
+}
+
+.breathalyzer-container {
+  position: relative;
+  width: clamp(380px, 26vw, 550px);
+  margin-right: 40px;
+  margin-bottom: -180px;
+  pointer-events: auto;
+}
+
+.breathalyzer-device {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 35px rgba(0, 0, 0, 0.8));
+}
+
+.breathalyzer-mouthpiece-click {
+  position: absolute;
+  top: 0%;
+  left: 38%;
+  width: 24%;
+  height: 16%;
+  cursor: pointer;
+}
+
+.breathalyzer-screen {
+  position: absolute;
+  top: 25%;
+  left: 32%;
+  width: 36%;
+  height: 26%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-family: 'Inter', monospace;
+  overflow: hidden;
+}
+
+.breath-status {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.breath-value {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--lation-cyan);
+  text-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+}
+
+.breath-minigame {
+  width: 85%;
+  text-align: center;
+}
+
+.breath-bar-bg {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.breath-safe-zone {
+  position: absolute;
+  left: 40%;
+  width: 20%;
+  height: 100%;
+  background: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+}
+
+.breath-indicator {
+  position: absolute;
+  left: 0%;
+  width: 8px;
+  height: 100%;
+  background: #fff;
+  box-shadow: 0 0 8px #fff;
+  transition: left 0.05s linear;
+}
+
+.breath-instruction {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--lation-text-muted);
+}
+
+.screen-error {
+  color: var(--lation-rose) !important;
+}
+
+.screen-success {
+  color: var(--lation-emerald) !important;
+}
+
+/* 7. Staff Magnetic Card Swipe */
+#swipe-card-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(4, 7, 14, 0.85);
+  backdrop-filter: blur(14px);
+  z-index: 100000;
+}
+
+.swipe-card-wrapper {
+  position: relative;
+  width: clamp(700px, 60vw, 1300px);
+  height: clamp(380px, 45vh, 600px);
+  background: var(--lation-bg);
+  border: 1px solid var(--lation-border-light);
+  border-radius: var(--lation-radius-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  box-shadow: var(--lation-shadow-card);
+}
+
+.swipe-card-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: var(--lation-text-dim);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.swipe-card-close:hover {
+  color: var(--lation-rose);
+}
+
+.card-reader-box {
+  position: relative;
+  width: clamp(550px, 48vw, 1000px);
+  height: clamp(160px, 22vh, 320px);
+  margin-bottom: 20px;
+}
+
+.card-reader-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.swipe-area {
+  position: absolute;
+  top: 45%;
+  left: 5%;
+  width: 90%;
+  height: 10%;
+  pointer-events: none;
+}
+
+.swipe-card-img-box {
+  position: absolute;
+  width: clamp(180px, 15vw, 320px);
+  height: auto;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: grab;
+  z-index: 50;
+}
+
+.swipe-card-img-box:active {
+  cursor: grabbing;
+}
+
+.card-img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.7));
+}
+
+.swipe-instructions {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--lation-text-muted);
+  letter-spacing: 2px;
+  margin-top: 15px;
+  text-transform: uppercase;
+}
+
+.swipe-status {
+  margin-top: 8px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.swipe-status.success {
+  color: var(--lation-emerald);
+  text-shadow: 0 0 15px var(--lation-emerald-glow);
+}
+
+.swipe-status.error {
+  color: var(--lation-rose);
+}
+

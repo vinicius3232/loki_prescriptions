@@ -91,6 +91,18 @@ Config.Alerts = {
     autoResolveAlert = true
 }
 
+-- Minigames Médicos Interativos (Absorvidos do Pluto & Lation UI)
+Config.InteractiveMinigames = {
+    enabled = true,
+    suture = true,          -- Sutura Cirúrgica Dinâmica em Canvas
+    clamp = true,           -- Hemostasia e Anastomose Vascular
+    bullet = true,          -- Extração Balística sem colisão arterial
+    bp = true,              -- Esfigmomanômetro com tubo Bezier SVG
+    bandage = true,         -- Curativo de Trauma em 3 Etapas (Assepsia, Gaze, 4x Fita)
+    breathalyzer = true,    -- Etilômetro / Bafômetro Digital NUI sincronizado
+    swipeCard = true,       -- Leitor de Cartão Magnético Hospitalar
+}
+
 ---@class Config.TV
 ---@field enabled boolean [enable tv feature?]
 ---@field points table<string, table<string, TVPoint>> [list of tv points, string is unique name of hospital!]

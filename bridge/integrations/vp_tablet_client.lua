@@ -16,6 +16,10 @@ local function registerTabletApp()
             removable   = false,
             category    = 'services',
             author      = 'Los Santos Medical Center',
+            onOpen      = function()
+                exports['vp_tablet']:CloseTablet()
+                TriggerEvent('loki_prescriptions:createPrescription')
+            end,
         })
     end)
 end

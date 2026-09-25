@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Loki Medical Suite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" crossorigin href="./assets/index-DrJUYvDM.css">
     <link rel="stylesheet" href="./lation-medical.css">
     <script type="module" crossorigin src="./assets/index-7UlVDa8_.js"></script>
@@ -15,6 +16,197 @@
   <body>
     <div id="root"></div>
     <div id="prescription-app"></div>
+
+    <!-- ================================================================= -->
+    <!-- PLUTO INTERACTIVE MEDICAL MINIGAMES (LATION UI ADAPTATION)       -->
+    <!-- ================================================================= -->
+
+    <!-- 1. Surgical Suturing Minigame -->
+    <div id="suture-minigame-container" class="lation-minigame-overlay hidden">
+      <div class="lation-minigame-window suture-window">
+        <div class="lation-minigame-header">
+          <div class="lation-minigame-badge">CIRURGIA VASCULAR / CUTÂNEA</div>
+          <div class="lation-minigame-title">
+            <i class="fas fa-hand-holding-medical"></i>
+            <span>SUTURA CIRÚRGICA AVANÇADA</span>
+          </div>
+          <div class="lation-minigame-hint">Arraste a agulha cirúrgica do ponto superior ao inferior para fechar a incisão</div>
+        </div>
+        <div id="suture-canvas-area">
+          <canvas id="suture-canvas"></canvas>
+          <div id="suture-needle"></div>
+        </div>
+        <div class="suture-progress-bar">
+          <div id="suture-fill"></div>
+        </div>
+        <div class="lation-minigame-footer">
+          <span>Pressione <kbd>ESC</kbd> para cancelar o procedimento</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Vascular Hemostasis & Clamping Minigame -->
+    <div id="clamp-minigame-container" class="lation-minigame-overlay hidden">
+      <div class="lation-minigame-window clamp-window">
+        <div class="lation-minigame-header">
+          <div class="lation-minigame-badge red">HEMOSTASIA DE EMERGÊNCIA</div>
+          <div class="lation-minigame-title">
+            <i class="fas fa-heart-pulse"></i>
+            <span>CONTROLE DE HEMORRAGIA & ANASTOMOSE</span>
+          </div>
+          <div id="clamp-hint" class="lation-minigame-hint">Arraste e conecte as extremidades dos vasos sanguíneos rompidos</div>
+        </div>
+        <div id="clamp-canvas-area">
+          <canvas id="clamp-canvas"></canvas>
+          <div id="vessel-suture-needle" class="suture-needle"></div>
+        </div>
+        <div class="lation-minigame-footer">
+          <span>Pressione <kbd>ESC</kbd> para interromper a hemostasia</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Bullet Extraction Minigame -->
+    <div id="bullet-minigame-container" class="lation-minigame-overlay hidden">
+      <div class="lation-minigame-window extraction-game">
+        <div class="lation-minigame-header">
+          <div class="lation-minigame-badge red">EXTRAÇÃO BALÍSTICA</div>
+          <div class="lation-minigame-title">
+            <i class="fas fa-microscope"></i>
+            <span>EXTRAÇÃO CIRÚRGICA DE PROJÉTIL</span>
+          </div>
+          <div class="lation-minigame-hint">Guie o projétil pelo canal tecidual sem colidir com as paredes arteriais</div>
+        </div>
+        <div id="extraction-canvas-area">
+          <canvas id="extraction-canvas"></canvas>
+          <div id="extraction-bullet" class="minigame-bullet-item">
+            <img src="img/bullet.png" alt="Bullet" draggable="false">
+          </div>
+          <div id="extraction-target" class="minigame-target-zone">SAÍDA</div>
+        </div>
+        <div class="lation-minigame-footer">
+          <span>Pressione <kbd>ESC</kbd> para abortar a extração</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Blood Pressure Monitor Minigame -->
+    <div id="bp-minigame-container" class="lation-minigame-overlay hidden">
+      <div class="bp-game">
+        <img id="bp-arm-image" src="img/arm.png" alt="Arm" draggable="false">
+        <div id="bp-game-area">
+          <!-- Dynamic 3D Bezier SVG Tube -->
+          <svg id="bp-tube-svg">
+            <path id="bp-tube-base" d="" fill="none" />
+            <path id="bp-tube-main" d="" fill="none" />
+            <path id="bp-tube-highlight" d="" fill="none" />
+          </svg>
+
+          <div id="bp-target-zone">POSICIONE A BRAÇADEIRA AQUI</div>
+
+          <div id="bp-cuff-item">
+            <img src="img/bp-cuff.png" alt="BP Cuff" draggable="false">
+          </div>
+
+          <div id="bp-machine-display">
+            <img id="bp-machine-img" src="img/bp.png" alt="BP Monitor" draggable="false">
+            <div id="bp-values">
+              <div id="systolic">--</div>
+              <div id="diastolic">--</div>
+              <div id="pulse-rate">--</div>
+            </div>
+          </div>
+        </div>
+        <div class="bp-esc-hint">Pressione <kbd>ESC</kbd> para fechar o monitor de pressão</div>
+      </div>
+    </div>
+
+    <!-- 5. Trauma Dressing Minigame -->
+    <div id="bandage-minigame-container" class="lation-minigame-overlay hidden">
+      <div class="dressing-window">
+        <div class="dressing-header">
+          <div class="dressing-title">
+            <i class="fas fa-kit-medical"></i>
+            <span>CURATIVO CIRÚRGICO DE TRAUMA</span>
+          </div>
+          <div class="dressing-steps">
+            <div class="step-indicator active" id="step-clean"><i class="fas fa-spray-can-sparkles"></i> 1. ASSEPSIA</div>
+            <div class="step-indicator" id="step-apply"><i class="fas fa-layer-group"></i> 2. GAZE ESTÉRIL</div>
+            <div class="step-indicator" id="step-secure"><i class="fas fa-tape"></i> 3. FIXAÇÃO</div>
+          </div>
+        </div>
+
+        <div class="dressing-body">
+          <div class="tool-tray">
+            <div class="tool-item" id="tool-swab" data-step="1" title="Algodão Antisséptico">
+              <img src="img/cotton.png" style="width: 44px; height: 44px; object-fit: contain;" alt="Cotton" draggable="false">
+              <span>ANTISSÉPTICO</span>
+            </div>
+            <div class="tool-item disabled" id="tool-gauze" data-step="2" title="Gaze Cirúrgica">
+              <i class="fas fa-layer-group"></i>
+              <span>GAZE PAD</span>
+            </div>
+            <div class="tool-item disabled" id="tool-tape" data-step="3" title="Fita Cirúrgica">
+              <i class="fas fa-tape"></i>
+              <span>ESPARADRAPO</span>
+            </div>
+          </div>
+
+          <div id="dressing-canvas-area">
+            <div id="limb-visual-container">
+              <canvas id="dressing-base-canvas"></canvas>
+              <div id="gauze-target" class="target-zone hidden">APLIQUE A GAZE AQUI</div>
+              <div id="placed-gauze" class="hidden"></div>
+              <div id="tape-container"></div>
+            </div>
+            <div id="active-tool-cursor" class="hidden"></div>
+          </div>
+        </div>
+
+        <div class="dressing-footer">
+          <div class="dressing-instruction" id="dressing-instruction">Selecione o ANTISSÉPTICO para higienizar a lesão.</div>
+          <button id="bandage-finish-btn" class="lation-btn lation-btn-primary hidden" onclick="window.finishDressingProcedure()">
+            <i class="fas fa-check"></i> CONCLUIR PROCEDIMENTO
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Breathalyzer Device Minigame -->
+    <div id="breathalyzer-view" class="hidden">
+      <div class="breathalyzer-container">
+        <img src="img/breathalyzer.png" class="breathalyzer-device" alt="Breathalyzer" draggable="false">
+        <div class="breathalyzer-mouthpiece-click" id="mouthpiece-click" onclick="window.startBreathalyzerMinigame()" title="Clique para assoprar"></div>
+        <div class="breathalyzer-screen hidden" id="breath-screen">
+          <div class="breath-status" id="breath-status">AGUARDANDO...</div>
+          <div class="breath-value" id="breath-value">0.00%</div>
+          <div class="breath-minigame hidden" id="breath-minigame">
+            <div class="breath-bar-bg">
+              <div class="breath-safe-zone"></div>
+              <div class="breath-indicator" id="breath-indicator"></div>
+            </div>
+            <div class="breath-instruction">SEGURE [E] PARA SOPRAR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Staff Magnetic Card Swipe Minigame -->
+    <div id="swipe-card-container" class="hidden">
+      <div class="swipe-card-wrapper">
+        <div class="swipe-card-close" onclick="window.closeSwipeMinigame()"><i class="fas fa-times"></i></div>
+        <div class="card-reader-box">
+          <img src="img/card-reader.png" class="card-reader-img" alt="Card Reader" draggable="false">
+          <div id="swipe-area" class="swipe-area"></div>
+        </div>
+        <div id="swipe-card-box" class="swipe-card-img-box">
+          <img src="img/card.png" class="card-img" draggable="false" alt="Staff Card">
+        </div>
+        <div class="swipe-instructions">DESLIZE O CARTÃO MAGNÉTICO PARA AUTORIZAR</div>
+        <div class="swipe-status" id="swipe-status">AGUARDANDO LEITURA...</div>
+      </div>
+    </div>
+
     <script src="./prescription.js"></script>
   </body>
 </html>
