@@ -1,44 +1,166 @@
-﻿# 💊 LOKI_PRESCRIPTIONS v2.0 (Modernized & Hardened)
+# 🏥 LOKI MEDICAL SUITE v2.5.0 (Enterprise EMS & Pharmacology)
 
-Sistema avançado e imersivo de receitas médicas, controle farmacológico e farmácias para FiveM, totalmente reformulado para alta performance (0.00ms resmon), segurança à prova de exploits e integração viva com o ecossistema de saúde e necessidades ([`vp_needs`](../vp_needs)).
-
----
-
-## 🌟 O que há de Novo na Versão 2.0
-
-### 1. 🛡️ Blindagem de Segurança & Anti-Exploit
-- **Validação de Autoridade Server-Side:** O servidor sanitiza todos os medicamentos contra a whitelist do `Config.Medicine`, bloqueando qualquer tentativa de injeção de itens forjados ou quantidades abusivas.
-- **Identidade Médica Canônica:** O nome civil e o registro do médico emissor são extraídos pelo servidor via framework, impedindo falsificação de assinatura por parte do cliente.
-- **Validação de Distância Física no Resgate:** O servidor valida a proximidade do jogador com o balcão da farmácia (`<= 4.0m`). Tentativas de resgate via executor remoto são sumariamente rejeitadas.
-- **Trava de Concorrência (Anti-Dupe):** Mutex atômico por jogador impede que múltiplos pacotes simultâneos causem duplicação de itens.
-- **Fail-Closed de Inventário:** Verificação prévia de capacidade de peso e slots (`CanCarryItem`). A transação só ocorre se o jogador puder carregar todos os itens com segurança.
-- **Consumo Preciso por Slot:** No `ox_inventory`, a receita é consumida amarrada ao slot exato do item, evitando queimar itens errados na mochila.
-
-### 2. 🧪 Farmacologia Ativa Integrada com `vp_needs`
-Os medicamentos agora possuem **efeitos farmacológicos reais e imediatos**:
-- **`clearairin` (Broncodilatador):** Interrompe crises agudas de tosse e engasgo/asfixia do módulo `consumption_choking.lua` do `vp_needs`.
-- **`gutguard` (Protetor Gástrico):** Alivia instantaneamente náuseas e vômitos causados por comida estragada ou excesso de álcool.
-- **`painaway` / `ibrofenix` (Analgésicos/Anti-inflamatórios):** Suprimem a dor física e concedem alívio maciço de estresse (`-50` de estresse).
-- **`vironix` / `zithromed` (Antivirais/Antibióticos):** Aceleram a recuperação clínica e aceleram altas médicas na clínica Parsons.
-- **`dayrelief` / `loprexin`:** Estabilizam a estamina e o ritmo cardíaco após esforços intensos.
-- **Mecânica de Overdose:** Ingestão de 3 ou mais comprimidos em menos de 60 segundos induz intoxicação medicamentosa (visão turva, perda de equilíbrio e náuseas).
-
-### 3. 📋 Ciclo de Vida Médico (Uso Contínuo & Retenção)
-- **Validade Temporal:** As receitas agora expiram após um prazo configurável (padrão de 3 dias reais). A farmácia recusa receitas vencidas.
-- **Receitas de Uso Contínuo (Recargas):** Medicamentos comuns permitem até 3 retiradas. A farmácia carimba a retirada e devolve a receita até esgotar as vias.
-- **Receitas de Retenção Obrigatória:** Antibióticos e analgésicos opioides (tarja preta) são retidos na primeira retirada.
-- **Prescrição Direta no Paciente:** Médicos podem mirar diretamente no paciente próximo via `ox_target` para emitir a receita diretamente no bolso dele.
-
-### 4. ⚡ Otimização com `ox_lib` (0.00ms Idle)
-- Substituição de threads manuais de polling por **`lib.points`**. Quando o jogador está fora das farmácias, o script opera com **0.00ms de resmon**.
-- Animações imersivas com barra de progresso visual (`lib.progressBar`) ao retirar remédios no balcão.
-
-### 5. 🏥 Economia Hospitalar & Localização
-- **Faturamento Hospitalar:** O dinheiro arrecadado nas farmácias é depositado diretamente na conta institucional do hospital (`Renewed-Banking` / `society_ambulance`).
-- **Localização pt-BR:** Suporte nativo ao Português do Brasil em todas as mensagens e notificações.
+> **Suíte Médica, Hospitalar e Farmacológica Avançada para FiveM / QBox**  
+> Desenvolvida com arquitetura de alta performance (**0.00ms resmon**), blindagem rigorosa contra exploits, design system moderno inspirado no **Lation UI** (Dark Glassmorphism, OLED Contrast, Emerald & Cyan Glow) e absorção completa das melhores tecnologias dos ecossistemas Wasabi, Pluto, AK47 e OSP.
 
 ---
 
-## 📦 Itens e Configuração de Inventário
+## 🌟 Visão Geral do Sistema
 
-Consulte o arquivo [`ITEM_SETUP/items_ox.lua`](./ITEM_SETUP/items_ox.lua) para as definições completas dos itens prontas para copiar e colar no seu `ox_inventory/data/items.lua`.
+O **Loki Medical Suite** transforma o atendimento pré-hospitalar e hospitalar no FiveM em uma experiência clínica profunda, dinâmica e altamente imersiva tanto para paramédicos quanto para pacientes.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           LOKI MEDICAL SUITE                                │
+├──────────────────┬───────────────────┬───────────────────┬──────────────────┤
+│ 🩺 DIAGNÓSTICO   │ ⚡ SUPORTE À VIDA │ 💊 FARMACOLOGIA   │ 🔬 PERÍCIA & RX  │
+│ • Anatomia 3D    │ • Desfibrilador   │ • Receituário     │ • Raio-X CRT     │
+│ • Fraturas/Ossos │ • Lucas 3 Auto-CPR│ • Farmácias Ox    │ • Balística Wasabi│
+│ • Sangramento    │ • Macas Fernocot  │ • Recargas/Vias   │ • Resíduos Pólvora│
+│ • Pulso & Temp   │ • Sedação Clínica │ • Efeitos Reais   │ • Atestado Médico│
+└──────────────────┴───────────────────┴───────────────────┴──────────────────┘
+```
+
+---
+
+## 🎨 Interface Visual (Lation UI Design Language)
+
+Todas as interfaces gráficas (NUI) foram reformuladas com o padrão de excelência visual **Lation UI**:
+- **Dark Glassmorphism Profundo:** Fundos `rgba(11, 15, 25, 0.94)` com `backdrop-filter: blur(28px)`.
+- **Acentos Esmeralda & Ciano:** Paleta clínica moderna (`#10b981` e `#06b6d4`) com sombras luminescentes sutis.
+- **Tipografia Inter & Caveat:** Tipografia corporativa e assinaturas médicas fluidas em estilo caligráfico.
+- **Raio-X com Efeito CRT:** Scanner com grade fluoroscópica, feixe de varredura animado, seletor de anatomia (Crânio, Tórax, Coluna, Braços, Pernas) e monitor OLED de sinais vitais.
+- **Painel de Receituário Moderno:** Cadastro ágil de múltiplos remédios com contadores em pílula, visualizador autenticado com marca d'água de segurança e código de barras oficial.
+
+---
+
+## 🧩 Módulos e Recursos
+
+### 1. 🩺 Atendimento Clínico & Diagnóstico Anatômico
+- **Exame Físico Detalhado:** Permite ao socorrista inspecionar ossos fraturados, perfurações, contusões e queimaduras em tempo real.
+- **Sinais Vitais:** Aferição de frequência cardíaca (BPM) e temperatura corporal com oscilação térmica de acordo com estado de choque.
+- **Tratamento Específico:**
+  - `bandage` / `gauze`: Hemostasia e estancamento de sangramentos.
+  - `suturekit`: Sutura de lacerações profundas com animação médica.
+  - `tweezers`: Extração cirúrgica de projéteis e estilhaços balísticos.
+  - `burncream`: Tratamento de queimaduras térmicas e químicas.
+  - `icepack` / `splint`: Imobilização de fraturas e luxações.
+  - `blood_bag`: Transfusão de sangue com checagem de tipo sanguíneo e restauração de volemia.
+
+### 2. ⚡ Suporte Avançado de Vida (SAV)
+- **Desfibrilador Bifásico (AED):** Choque sincronizado com animação de descarga, sonorização tridimensional (`web/sounds/`) e recuperação de parada cardíaca.
+- **Lucas 3 (Compressor Torácico Mecânico):** Prop físico implantável com animação de compressão cardíaca contínua no paciente durante o transporte na ambulância.
+- **Coma Sensorial & Morte Clínica:** Sistema imersivo de perda de consciência, visão de túnel, blackout progressivo e efeitos auditivos de batimentos cardíacos esmaecendo.
+- **Sedação Clínica com Seringa:** Aplicação de sedativos com animação de injeção, redução de estresse e indução de repouso forçado.
+- **Nocaute Não-Letal (Knockout):** Mecânica desarmada que nocauteia brigões sem causar morte permanente, simulando concussão leve.
+
+### 3. 🚑 Logística & Transporte de Pacientes
+- **Maca Fernocot Articulada (`/maca`, `/stretcher`):**
+  - Prop de alta fidelidade com animação de empurrar.
+  - Acoplamento automático na traseira de ambulâncias compatíveis.
+  - Pacientes podem deitar, receber oxigênio e medicação endovenosa em movimento.
+- **Cadeira de Rodas & Muletas:** Auxiliares de locomoção com animação física de mancar ao sofrer fraturas graves nos membros inferiores.
+- **Mochila Médica de Resgate (`medicbag`):** Acesso rápido a todos os insumos de primeiros socorros diretamente no local da ocorrência.
+
+### 4. 🩻 Centro de Diagnóstico por Imagem (Raio-X)
+- **Máquina de Fluoroscopia / Raio-X (`/raiox`):**
+  - Permite aos médicos e técnicos inspecionar chapas radiográficas do corpo do paciente.
+  - Renderiza visualmente ossos fraturados, fissuras e projéteis alojados.
+  - Laudo radiográfico oficial assinado pelo médico examinador.
+
+### 5. 🔬 Necropsia, Balística Forense & Atestados
+- **Perícia de Calibres Wasabi:** O sistema identifica o calibre balístico das lesões (ex: 9mm Luger, 5.56x45mm NATO, 12 Gauge, 7.62x39mm, .45 ACP, .50 AE, Taser).
+- **Detecção de Resíduos de Pólvora (GSR):** Identifica se o suspeito ou vítima efetuou disparos nas últimas horas.
+- **Atestado Médico Oficial (`/atestado`):** Médicos emitem atestados de dispensa de trabalho/atividade policial com prazo de validade em dias e registro no banco de dados.
+
+### 6. 💊 Receituário Eletrônico & Farmacologia Ativa
+- **Bloco de Receitas Oficial (`/receita`):** Médicos prescrevem de 1 a 4 remédios com quantidades específicas e instruções de posologia.
+- **Farmácias Hospitalares Automatizadas:**
+  - Validação estrita por proximidade e inventário.
+  - Receitas de **Uso Contínuo** (com até 3 vias/recargas).
+  - Receitas de **Retenção Obrigatória** para remédios tarja preta.
+  - Faturamento depositado diretamente no cofre institucional da sociedade médica (`society_ambulance`).
+- **Efeitos Farmacológicos Integrados:** Efeitos imediatos no metabolismo, alívio de estresse, proteção gástrica contra vômitos e neutralização de tosse/asfixia.
+
+---
+
+## 🛡️ Blindagem de Segurança & Anti-Exploit (OmniRoute Quality Gate)
+
+Auditado com **Codex** e **Claude Sonnet 4.6**, o script possui as seguintes camadas de segurança ativas:
+
+| Camada | Mecanismo | Proteção |
+| :--- | :--- | :--- |
+| **Trava Atômica de Concorrência** | `healingLocks[target]`, `activeRedeems[src]` | Impossibilita duplicação de itens ou tratamentos múltiplos por pacotes de rede simultâneos. |
+| **Rate Limit / Cooldown Proporcional** | Cooldown de 1.2s entre curas; 5s entre manobras de RCP | Bloqueia spam de eventos via executores de scripts. |
+| **Validação 3D + Altura Z** | `dist <= maxDist and zDiff <= 3.5` | Evita explorações de proxymity bypass em andares superiores ou subterrâneos. |
+| **Fail-Closed de Inventário** | Remoção do insumo/dinheiro **antes** da concessão de saúde/cura | Se a remoção falhar, o processo é abortado imediatamente sem side effects. |
+| **Sanitização de Quantidades** | Capped com `math.min(amount, Config.MaxMedsPerPrescription)` | Bloqueia injeção de inteiros gigantes ou negativos (`math.floor` + limites). |
+| **Ciclo de Vida em `playerDropped`** | Limpeza de todas as tabelas de sessão no disconnect | Elimina vazamentos de memória no Garbage Collector do runtime Lua. |
+
+---
+
+## 🎮 Comandos & Atalhos
+
+| Comando | Descrição | Permissão |
+| :--- | :--- | :--- |
+| `/receita` | Abre o bloco de receituário médico digital | Médicos / Paramédicos |
+| `/raiox [id]` | Inicia exame de Raio-X do paciente | Médicos / Paramédicos |
+| `/atestado` | Abre emissor de atestado médico oficial | Médicos / Paramédicos |
+| `/maca` ou `/stretcher` | Spawna a maca de ambulância articulada | Médicos / Paramédicos |
+| `/cpr` | Inicia manobras de massagem cardíaca | Todos / Paramédicos |
+| `/checkpulse` | Mede o pulso do paciente próximo | Todos / Paramédicos |
+| `/checktemp` | Mede a temperatura do paciente próximo | Todos / Paramédicos |
+| `/menuems` | Abre o menu radial avançado de paramédico (`ox_lib`) | Paramédicos |
+
+---
+
+## 📦 Lista de Itens no `ox_inventory`
+
+Os seguintes itens médicos devem estar registrados no arquivo `ox_inventory/data/items.lua`:
+
+```lua
+-- Itens de Primeiros Socorros e Tratamento Avançado
+['sedative'] = { label = 'Seringa de Sedativo', weight = 100, stack = true, close = true },
+['burncream'] = { label = 'Pomada para Queimadura', weight = 150, stack = true, close = true },
+['suturekit'] = { label = 'Kit de Sutura Estéril', weight = 200, stack = true, close = true },
+['tweezers'] = { label = 'Pinça Cirúrgica', weight = 80, stack = true, close = true },
+['icepack'] = { label = 'Bolsa de Gelo Térmica', weight = 250, stack = true, close = true },
+['blood_bag'] = { label = 'Bolsa de Sangue Total', weight = 500, stack = true, close = true },
+['defib'] = { label = 'Desfibrilador Portátil AED', weight = 2500, stack = false, close = true },
+['stretcher'] = { label = 'Maca Fernocot Articulada', weight = 8000, stack = false, close = true },
+['crutch'] = { label = 'Muleta Ortopédica', weight = 1200, stack = false, close = true },
+['wheelchair'] = { label = 'Cadeira de Rodas Hospitalar', weight = 9000, stack = false, close = true },
+['medicbag'] = { label = 'Mochila de Trauma do Socorrista', weight = 1500, stack = false, close = true },
+['prescription_pad'] = { label = 'Bloco de Receitas Oficiais', weight = 200, stack = false, close = true },
+['prescription'] = { label = 'Receituário Médico Carimbado', weight = 50, stack = false, close = true },
+['medical_certificate'] = { label = 'Atestado Médico Oficial', weight = 50, stack = false, close = true },
+```
+
+---
+
+## 🛠️ Instalação & Setup
+
+1. **Colocação do Resource:**
+   Certifique-se de que a pasta `loki_prescriptions` está localizada dentro do seu diretório `resources/[standalone]/` ou `resources/`.
+2. **Dependências Obrigatórias:**
+   - `ox_lib`
+   - `oxmysql`
+   - `ox_inventory`
+   - `qbx_core` (ou compatível com ESX/QB via bridge automática).
+3. **Importação do Banco de Dados:**
+   Importe as tabelas em `server/database.lua` (o script cria automaticamente na inicialização via `CREATE TABLE IF NOT EXISTS`).
+4. **Inicialização no `server.cfg`:**
+   ```cfg
+   ensure ox_lib
+   ensure ox_inventory
+   ensure loki_prescriptions
+   ```
+
+---
+
+## 👨‍💻 Créditos e Autoria
+
+- **Arquitetura & Engenharia:** Loki Scripts & Vinicius
+- **Auditoria de Segurança:** OmniRoute Multi-Model Engine (Claude Sonnet 4.6 & Codex Auto-Review)
+- **Design System:** Inspirado na excelência estética do **Lation UI**
+- **Módulos Integrados:** Wasabi Ambulance, Pluto Core, AK47 & OSP Medical

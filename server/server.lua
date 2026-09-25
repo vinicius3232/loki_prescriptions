@@ -1,4 +1,4 @@
-﻿local activeRedeems = {}
+local activeRedeems = {}
 
 local function notify(type, msg, heading, src)
     heading = heading or _U('pharmacy')
@@ -232,14 +232,22 @@ RegisterServerEvent('loki_prescriptions:redeemPrescription', function()
         activeRedeems[src] = nil
     end
 
-    -- Validação de Proximidade Física do Balcão da Farmácia no Servidor
-    local pedCoords = GetEntityCoords(GetPlayerPed(src))
+    -- Validação de Proximidade Física do Balcão da Farmácia no Servidor (3D + Z check)
+    local ped = GetPlayerPed(src)
+    if not ped or ped == 0 or IsEntityDead(ped) then
+        releaseLock()
+        return
+    end
+
+    local pedCoords = GetEntityCoords(ped)
     local isNearAnyPharmacy = false
     local maxDist = Config.MaxRedeemDistance or 4.0
 
     for _, pharmacy in ipairs(Config.Pharmacies) do
         local pPos = vector3(pharmacy.position.x, pharmacy.position.y, pharmacy.position.z)
-        if #(pedCoords - pPos) <= maxDist then
+        local dist = #(pedCoords - pPos)
+        local zDiff = math.abs(pedCoords.z - pPos.z)
+        if dist <= maxDist and zDiff <= 3.5 then
             isNearAnyPharmacy = true
             break
         end
@@ -256,6 +264,14 @@ RegisterServerEvent('loki_prescriptions:redeemPrescription', function()
     if not item then
         releaseLock()
         notify('info', _U('noPrescription'), _U('pharmacy'), src)
+        return
+    end
+
+    -- Fixação estrita do slot para evitar slot poisoning / swap exploits
+    local fixedSlot = tonumber(item.slot)
+    if not fixedSlot or fixedSlot < 1 or fixedSlot ~= math.floor(fixedSlot) then
+        releaseLock()
+        notify('error', 'Erro de integridade do inventário.', _U('pharmacy'), src)
         return
     end
 
@@ -283,6 +299,7 @@ RegisterServerEvent('loki_prescriptions:redeemPrescription', function()
 
     local itemsToGive = {}
     local totalPrice = 0
+    local maxAllowedPerMed = Config.MaxMedsPerPrescription or 10
 
     for _, prescriptionMed in ipairs(prescribed) do
         local medConfig = nil
@@ -293,15 +310,25 @@ RegisterServerEvent('loki_prescriptions:redeemPrescription', function()
             end
         end
 
-        local amount = tonumber(prescriptionMed.amount)
-        if not medConfig or not amount or amount < 1 then
+        local rawAmount = tonumber(prescriptionMed.amount)
+        if not medConfig or not rawAmount or rawAmount < 1 then
             releaseLock()
             notify('error', 'Medicamento inválido na receita.', _U('pharmacy'), src)
             return
         end
 
-        table.insert(itemsToGive, { med = medConfig, amount = math.floor(amount) })
-        totalPrice = totalPrice + (medConfig.cost * math.floor(amount))
+        local amount = math.min(math.floor(rawAmount), maxAllowedPerMed)
+        local unitCost = tonumber(medConfig.cost) or 0
+        if unitCost < 0 then unitCost = 0 end
+
+        table.insert(itemsToGive, { med = medConfig, amount = amount })
+        totalPrice = totalPrice + (unitCost * amount)
+    end
+
+    if totalPrice > 1000000 or totalPrice < 0 then
+        releaseLock()
+        notify('error', 'Valor anômalo detectado.', _U('pharmacy'), src)
+        return
     end
 
     -- Verificação Prévia de Capacidade de Inventário (Fail-Closed)
@@ -319,7 +346,7 @@ RegisterServerEvent('loki_prescriptions:redeemPrescription', function()
         totalPrice = math.floor(totalPrice * (Config.Insurance.reduction or 0.35))
     end
 
-    -- Cobrança Financeira do Paciente
+    -- Cobrança Financeira do Paciente (Fail-Closed antes da entrega)
     if totalPrice > 0 then
         if not RemovePlayerMoney(src, totalPrice) then
             releaseLock()
@@ -341,15 +368,15 @@ RegisterServerEvent('loki_prescriptions:redeemPrescription', function()
             pData.refills_remaining
         )
 
-        local updated = UpdateItemMetadata(src, item.slot, metadata)
+        local updated = UpdateItemMetadata(src, fixedSlot, metadata)
         if not updated then
             -- Se não conseguiu atualizar metadados no slot, remove a unidade
-            RemoveItem(src, Config.PrescriptionItem, metadata, item.slot)
+            RemoveItem(src, Config.PrescriptionItem, metadata, fixedSlot)
         end
         notify('info', _U('refillRemaining', pData.refills_remaining), _U('pharmacy'), src)
     else
         -- Última via: receita é retida e removida do inventário
-        RemoveItem(src, Config.PrescriptionItem, metadata, item.slot)
+        RemoveItem(src, Config.PrescriptionItem, metadata, fixedSlot)
         notify('info', _U('refillExhausted'), _U('pharmacy'), src)
     end
 
@@ -360,6 +387,11 @@ RegisterServerEvent('loki_prescriptions:redeemPrescription', function()
 
     notify('info', _U('medsGiven'), _U('pharmacy'), src)
     releaseLock()
+end)
+
+-- Limpeza de memória do rate limit e travas
+AddEventHandler('playerDropped', function()
+    activeRedeems[source] = nil
 end)
 
 RegisterServerEvent('loki_prescriptions:requestPrescribePad', function(targetServerId)

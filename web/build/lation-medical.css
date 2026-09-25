@@ -1,0 +1,648 @@
+/* =========================================================================
+   LATION UI DESIGN SYSTEM - LOKI PRESCRIPTIONS & MEDICAL SUITE OVERHAUL
+   Inspired by Lation UI Aesthetic: Slate Glassmorphism, Emerald/Cyan Glow,
+   OLED Contrast, Inter Typography & Precision Pill Badges.
+   ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --lation-bg: rgba(11, 15, 25, 0.94);
+  --lation-panel: rgba(17, 24, 39, 0.85);
+  --lation-panel-hover: rgba(31, 41, 55, 0.7);
+  --lation-panel-card: rgba(15, 23, 42, 0.75);
+  --lation-border: rgba(255, 255, 255, 0.08);
+  --lation-border-light: rgba(255, 255, 255, 0.12);
+  --lation-border-accent: rgba(16, 185, 129, 0.35);
+  
+  --lation-emerald: #10b981;
+  --lation-emerald-hover: #059669;
+  --lation-emerald-glow: rgba(16, 185, 129, 0.25);
+  
+  --lation-cyan: #06b6d4;
+  --lation-cyan-hover: #0891b2;
+  --lation-cyan-glow: rgba(6, 182, 212, 0.25);
+  
+  --lation-rose: #f43f5e;
+  --lation-amber: #f59e0b;
+  
+  --lation-text: #f8fafc;
+  --lation-text-muted: #94a3b8;
+  --lation-text-dim: #64748b;
+  
+  --lation-radius-xl: 18px;
+  --lation-radius-lg: 14px;
+  --lation-radius-md: 10px;
+  --lation-radius-sm: 6px;
+  --lation-radius-pill: 9999px;
+  
+  --lation-shadow-card: 0 20px 40px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--lation-border);
+  --lation-shadow-emerald: 0 8px 24px -6px rgba(16, 185, 129, 0.4);
+}
+
+/* Base resets & typography */
+#prescription-app {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--lation-text);
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Mantine Theme Enhancements (Injecting Lation Glass into Healing Menu) */
+._healingWrapper_1v0m6_9 {
+  background: var(--lation-bg) !important;
+  backdrop-filter: blur(28px) !important;
+  border-left: 1px solid var(--lation-border) !important;
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.6) !important;
+}
+
+._healingItem_1v0m6_15 {
+  background: var(--lation-panel-card) !important;
+  border: 1px solid var(--lation-border) !important;
+  border-radius: var(--lation-radius-md) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+._healingItem_1v0m6_15:hover {
+  border-color: var(--lation-border-accent) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.15) !important;
+}
+
+._healingBone_1v0m6_100 {
+  background: var(--lation-panel-card) !important;
+  border: 1px solid rgba(244, 63, 94, 0.2) !important;
+  border-radius: var(--lation-radius-md) !important;
+}
+._healingBone_1v0m6_100:hover {
+  border-color: rgba(244, 63, 94, 0.4) !important;
+}
+
+/* Prescription System Modal Backdrop */
+.lation-rx-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 7, 13, 0.72);
+  backdrop-filter: blur(14px);
+  z-index: 99999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lation-rx-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Prescription Window Card */
+.lation-rx-card {
+  width: 95%;
+  max-width: 620px;
+  background: var(--lation-bg);
+  border: 1px solid var(--lation-border);
+  border-radius: var(--lation-radius-xl);
+  box-shadow: var(--lation-shadow-card), 0 0 50px -10px rgba(16, 185, 129, 0.12);
+  overflow: hidden;
+  transform: scale(0.96) translateY(12px);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.lation-rx-backdrop.active .lation-rx-card {
+  transform: scale(1) translateY(0);
+}
+
+/* Card Header */
+.lation-rx-header {
+  padding: 18px 24px;
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, transparent 100%), var(--lation-panel);
+  border-bottom: 1px solid var(--lation-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lation-rx-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lation-rx-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--lation-radius-md);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(6, 182, 212, 0.15) 100%);
+  border: 1px solid var(--lation-border-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--lation-emerald);
+  box-shadow: var(--lation-shadow-emerald);
+}
+
+.lation-rx-title-group h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--lation-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lation-rx-title-group p {
+  margin: 2px 0 0 0;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--lation-text-muted);
+}
+
+.lation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--lation-radius-pill);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lation-badge-emerald {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--lation-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.lation-badge-cyan {
+  background: rgba(6, 182, 212, 0.12);
+  color: var(--lation-cyan);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+}
+
+.lation-badge-rose {
+  background: rgba(244, 63, 94, 0.12);
+  color: var(--lation-rose);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}
+
+/* Card Body */
+.lation-rx-body {
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.lation-rx-body::-webkit-scrollbar {
+  width: 5px;
+}
+.lation-rx-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+/* Form Grid */
+.lation-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.lation-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lation-field.full {
+  grid-column: span 2;
+}
+
+.lation-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--lation-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lation-input, .lation-select, .lation-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--lation-panel-card);
+  border: 1px solid var(--lation-border);
+  border-radius: var(--lation-radius-md);
+  color: var(--lation-text);
+  font-size: 0.88rem;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.18s ease;
+  box-sizing: border-box;
+}
+
+.lation-input:focus, .lation-select:focus, .lation-textarea:focus {
+  border-color: var(--lation-emerald);
+  box-shadow: 0 0 0 2px var(--lation-emerald-glow);
+  background: rgba(20, 29, 48, 0.85);
+}
+
+.lation-input::placeholder, .lation-textarea::placeholder {
+  color: var(--lation-text-dim);
+}
+
+.lation-textarea {
+  resize: vertical;
+  min-height: 70px;
+  line-height: 1.4;
+}
+
+/* Medication Section */
+.lation-med-section {
+  background: var(--lation-panel-card);
+  border: 1px solid var(--lation-border);
+  border-radius: var(--lation-radius-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lation-med-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lation-med-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lation-med-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(11, 15, 25, 0.65);
+  border: 1px solid var(--lation-border);
+  border-radius: var(--lation-radius-md);
+  padding: 8px 12px;
+  transition: border-color 0.15s ease;
+}
+
+.lation-med-row:hover {
+  border-color: var(--lation-border-light);
+}
+
+.lation-med-row select {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--lation-text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+}
+
+.lation-med-row select option {
+  background: #0f172a;
+  color: #fff;
+}
+
+.lation-qty-control {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--lation-radius-sm);
+  border: 1px solid var(--lation-border);
+  overflow: hidden;
+}
+
+.lation-qty-btn {
+  width: 26px;
+  height: 26px;
+  background: transparent;
+  border: none;
+  color: var(--lation-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+
+.lation-qty-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--lation-text);
+}
+
+.lation-qty-val {
+  min-width: 24px;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--lation-emerald);
+}
+
+.lation-btn-icon-danger {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--lation-radius-sm);
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  color: var(--lation-rose);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.lation-btn-icon-danger:hover {
+  background: rgba(244, 63, 94, 0.25);
+  color: #fff;
+}
+
+.lation-add-med-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px dashed var(--lation-border-accent);
+  border-radius: var(--lation-radius-md);
+  color: var(--lation-emerald);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lation-add-med-btn:hover {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--lation-emerald);
+}
+
+/* Signature & Seal Area */
+.lation-signature-box {
+  background: rgba(11, 15, 25, 0.5);
+  border: 1px solid var(--lation-border);
+  border-radius: var(--lation-radius-md);
+  padding: 10px 14px;
+  position: relative;
+}
+
+.lation-signature-preview {
+  font-family: 'Caveat', cursive;
+  font-size: 1.8rem;
+  color: var(--lation-emerald);
+  line-height: 1.2;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+  padding-bottom: 4px;
+}
+
+/* Card Footer */
+.lation-rx-footer {
+  padding: 16px 24px;
+  background: var(--lation-panel);
+  border-top: 1px solid var(--lation-border);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.lation-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--lation-radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+  outline: none;
+}
+
+.lation-btn-ghost {
+  background: transparent;
+  color: var(--lation-text-muted);
+  border-color: var(--lation-border);
+}
+
+.lation-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--lation-text);
+  border-color: var(--lation-border-light);
+}
+
+.lation-btn-primary {
+  background: linear-gradient(135deg, var(--lation-emerald) 0%, #0d9488 100%);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: var(--lation-shadow-emerald);
+}
+
+.lation-btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px -6px rgba(16, 185, 129, 0.5);
+}
+
+/* =========================================================================
+   READ-ONLY PRESCRIPTION VIEWER (FOR PATIENT & PHARMACY VERIFICATION)
+   ========================================================================= */
+
+.lation-view-card {
+  position: relative;
+  background: var(--lation-bg);
+  border: 1px solid var(--lation-border-accent);
+  box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.9), 0 0 45px -10px rgba(16, 185, 129, 0.2);
+}
+
+.lation-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-25deg);
+  font-size: 4.5rem;
+  font-weight: 900;
+  color: rgba(16, 185, 129, 0.035);
+  pointer-events: none;
+  white-space: nowrap;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.lation-view-badge-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lation-view-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  background: rgba(11, 15, 25, 0.6);
+  border: 1px solid var(--lation-border);
+  border-radius: var(--lation-radius-md);
+  padding: 12px 16px;
+}
+
+.lation-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.lation-meta-label {
+  font-size: 0.68rem;
+  color: var(--lation-text-dim);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.lation-meta-val {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--lation-text);
+}
+
+.lation-view-meds {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lation-view-med-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--lation-panel-card);
+  border: 1px solid var(--lation-border);
+  border-radius: var(--lation-radius-md);
+}
+
+.lation-view-med-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lation-view-med-pill {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--lation-radius-pill);
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--lation-emerald);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.lation-view-med-info h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--lation-text);
+}
+
+.lation-view-med-info p {
+  margin: 2px 0 0 0;
+  font-size: 0.75rem;
+  color: var(--lation-text-muted);
+}
+
+.lation-view-refills {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--lation-radius-pill);
+  background: rgba(6, 182, 212, 0.12);
+  color: var(--lation-cyan);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+}
+
+.lation-view-notes {
+  background: rgba(11, 15, 25, 0.5);
+  border: 1px solid var(--lation-border);
+  border-radius: var(--lation-radius-md);
+  padding: 12px 16px;
+}
+
+.lation-view-notes h5 {
+  margin: 0 0 6px 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--lation-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lation-view-notes p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--lation-text-muted);
+  line-height: 1.45;
+}
+
+.lation-security-seal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px dashed var(--lation-border);
+}
+
+.lation-barcode {
+  letter-spacing: 4px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: var(--lation-text-dim);
+  opacity: 0.7;
+}
+
+.lation-doctor-sign {
+  text-align: right;
+}
+
+.lation-doctor-sign span {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--lation-text-dim);
+  text-transform: uppercase;
+}
+
+.lation-doctor-sign h3 {
+  margin: 0;
+  font-family: 'Caveat', cursive;
+  font-size: 1.6rem;
+  color: var(--lation-emerald);
+}

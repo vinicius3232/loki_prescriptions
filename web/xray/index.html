@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Diagnóstico Radiológico Digital</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ======================================================
+         Interface principal X-Ray (estilo workstation médica)
+    ====================================================== -->
+    <div id="app">
+
+        <div class="title-bar">
+            <span class="title-text">Workstation Radiológica — [Módulo_Diagnostico_Imagem.exe]</span>
+            <div class="title-controls">
+                <div class="win-btn">_</div>
+                <div class="win-btn">□</div>
+                <div id="btn-close-window" class="win-btn" title="Fechar Interface">✕</div>
+            </div>
+        </div>
+
+        <div class="menu-bar">
+            <span class="menu-item"><u>A</u>rquivo</span>
+            <span class="menu-item"><u>E</u>dição</span>
+            <span class="menu-item"><u>V</u>isualizar</span>
+            <span class="menu-item"><u>I</u>magem</span>
+            <span class="menu-item"><u>A</u>juda</span>
+        </div>
+
+        <div class="main-content">
+
+            <!-- Painel Esquerdo -->
+            <div class="left-pane">
+
+                <div class="group-box">
+                    <span class="group-title">Prontuário do Paciente</span>
+                    <div class="patient-info">
+                        <div class="data-row">
+                            <span class="data-label">PACIENTE :</span>
+                            <span id="patient-name" class="data-value">NÃO IDENTIFICADO</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">ID / LEITO :</span>
+                            <span id="patient-id" class="data-value">N/A</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">SETOR :</span>
+                            <span class="data-value">TRAUMATOLOGIA & EMERGÊNCIA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group-box">
+                    <span class="group-title">Mapeamento Ósseo & Articular</span>
+                    <div class="bone-grid">
+                        <button class="win-button bone-btn" data-bone="head">Crânio</button>
+                        <button class="win-button bone-btn" data-bone="chest">Tórax</button>
+                        <button class="win-button bone-btn" data-bone="left_arm">Braço E.</button>
+                        <button class="win-button bone-btn" data-bone="right_arm">Braço D.</button>
+                        <button class="win-button bone-btn" data-bone="left_leg">Perna E.</button>
+                        <button class="win-button bone-btn" data-bone="right_leg">Perna D.</button>
+                    </div>
+                </div>
+
+                <div class="group-box" style="flex:1;">
+                    <span class="group-title">Laudo Radiológico Digital</span>
+                    <div id="bone-results">
+                        <p class="status-text">Terminal em espera. Selecione uma região anatômica e inicie a varredura...</p>
+                    </div>
+                </div>
+
+                <button id="scan-btn" class="win-button primary">INICIAR VARREDURA (SCAN)</button>
+                <button id="print-btn" class="win-button" style="margin-top: 5px; display: none;">IMPRIMIR LAUDO RADIOLÓGICO</button>
+
+            </div>
+
+            <!-- Painel Direito — Exibição do Raio-X -->
+            <div class="right-pane">
+                <div class="xray-container">
+                    <div class="crt-effect"></div>
+                    <div id="scanning-bar" class="scanning-bar"></div>
+
+                    <div id="medical-overlay" class="medical-overlay">
+                        <div class="overlay-tl">
+                            RES_SCAN: 1024x768<br>
+                            MODO: RADIOLOGIA_DIGITAL_3A<br>
+                            GANHO: 45.2dB
+                        </div>
+                        <div class="overlay-tr">
+                            <span id="overlay-date">--/--/----</span><br>
+                            <span id="overlay-time">00:00:00</span><br>
+                            CADÊNCIA: 24fps
+                        </div>
+                        <div class="overlay-bl">
+                            LAT: -34.221<br>
+                            LON: 112.445<br>
+                            SETOR: TOMOGRAFIA_01
+                        </div>
+                        <div class="overlay-br">
+                            HOSPITAL: PILLBOX_MEDICAL<br>
+                            DEPT: RADIOLOGIA & TRAUMA<br>
+                            ESTAÇÃO: 04
+                        </div>
+                    </div>
+
+                    <img id="xray-image" src="" alt="">
+                    <div id="no-data-msg">SEM SINAL DE ENTRADA</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Cursor de mouse 3D NUI -->
+        <div id="cursor">
+            <img src="assets/cursor.png" alt="">
+        </div>
+
+    </div>
+
+    <!-- ======================================================
+         Monitor Multiparamétrico de Sinais Vitais (ECG)
+    ====================================================== -->
+    <div id="vitals-app">
+
+        <div class="vitals-topbar">
+            <span class="vitals-clock" id="vitals-clock">00:00:00</span>
+            <div class="vitals-patient-inline">
+                <span id="vitals-name">NENHUM PACIENTE CONECTADO</span>
+                <span id="vitals-sid">SID: N/A</span>
+            </div>
+        </div>
+
+        <div class="monitor-layout">
+
+            <div class="monitor-sidebar">
+                <div class="side-block hr-block">
+                    <div class="side-label">FC (BPM)</div>
+                    <div class="side-value-wrap">
+                        <span id="pulse-val" class="side-value">0</span>
+                    </div>
+                </div>
+                <div class="side-block spo2-block">
+                    <div class="side-label">SpO2</div>
+                    <div class="side-value-wrap">
+                        <span id="o2-val" class="side-value">0</span>
+                        <span class="side-unit">%</span>
+                    </div>
+                </div>
+                <div class="side-block bp-block">
+                    <div class="side-label">PA (NIBP)</div>
+                    <div class="side-value-wrap">
+                        <span id="bp-val" class="side-value">0/0</span>
+                    </div>
+                    <div class="side-unit">mmHg</div>
+                </div>
+            </div>
+
+            <div class="wave-stack">
+                <div class="wave-row">
+                    <span class="wave-label wave-hr">ECG DERIVAÇÃO II</span>
+                    <canvas id="wave-hr" class="wave-canvas"></canvas>
+                </div>
+                <div class="wave-row">
+                    <span class="wave-label wave-spo2">OXIMETRIA (SpO2)</span>
+                    <canvas id="wave-spo2" class="wave-canvas"></canvas>
+                </div>
+                <div class="wave-row">
+                    <span class="wave-label wave-bp">PRESSÃO ARTERIAL</span>
+                    <canvas id="wave-bp" class="wave-canvas"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="vitals-footer">
+            <span id="vitals-status">EM ESPERA — MONITOR AGUARDANDO ELETRODOS</span>
+            <span id="vitals-footer-clock">00:00:00</span>
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
