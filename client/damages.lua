@@ -70,6 +70,39 @@ function Damages.initEffects(self)
         end
       end
 
+      -- Traumatologia Dinâmica de Fraturas (LockSteering & Staggering)
+      local leftArmDmg = (self.damages.leftArm and self.damages.leftArm.damage) or 0
+      local rightArmDmg = (self.damages.rightArm and self.damages.rightArm.damage) or 0
+      local leftLegDmg = (self.damages.leftLeg and self.damages.leftLeg.damage) or 0
+      local rightLegDmg = (self.damages.rightLeg and self.damages.rightLeg.damage) or 0
+
+      -- 1. LockSteering: Espasmo muscular e perda temporária de direção ao volante com braço fraturado
+      if leftArmDmg > 40 or rightArmDmg > 40 then
+        local veh = GetVehiclePedIsIn(cache.ped, false)
+        if veh ~= 0 and GetPedInVehicleSeat(veh, -1) == cache.ped and GetEntitySpeed(veh) > 6.0 then
+          if not self.lastSteerSpasm or (GetGameTimer() - self.lastSteerSpasm) > 18000 then
+            self.lastSteerSpasm = GetGameTimer()
+            local bias = (math.random() > 0.5 and 0.45 or -0.45)
+            SetVehicleSteerBias(veh, bias)
+            SendNUIMessage({ action = "playSound", sound = "fracture1", volume = 0.5 })
+            Bridge.Notify.showNotify("Dor aguda na fratura do braço! Você perdeu o controle momentâneo da direção.", "error")
+          end
+        end
+      end
+
+      -- 2. Staggering: Tropeço e queda involuntária ao correr com perna fraturada sem muleta
+      if leftLegDmg > 40 or rightLegDmg > 40 then
+        local isUsingCrutch = exports['loki_prescriptions']:isCrutchEnabled()
+        if not isUsingCrutch and IsPedSprinting(cache.ped) then
+          if not self.lastStagger or (GetGameTimer() - self.lastStagger) > 12000 then
+            self.lastStagger = GetGameTimer()
+            SetPedToRagdoll(cache.ped, 1200, 1200, 0, false, false, false)
+            SendNUIMessage({ action = "playSound", sound = "fracture2", volume = 0.5 })
+            Bridge.Notify.showNotify("Sua perna fraturada cedeu com o impacto! Utilize uma muleta ortopédica.", "error")
+          end
+        end
+      end
+
       Citizen.Wait(1000)
     end
   end)

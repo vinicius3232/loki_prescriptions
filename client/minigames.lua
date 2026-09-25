@@ -145,11 +145,15 @@ local function StartBP(targetServerId, part)
     local myPed = PlayerPedId()
     TaskStartScenarioInPlace(myPed, "CODE_HUMAN_MEDIC_TEND_TO_KNOT", 0, true)
 
+    local targetSrc = targetServerId or GetPlayerServerId(PlayerId())
+    local targetPulse = Player(tonumber(targetSrc)).state.pulse or 72
+
     SetNuiFocus(true, true)
     SendNUIMessage({
         action = "loki:startBP",
-        targetSrc = targetServerId or GetPlayerServerId(PlayerId()),
-        part = part or "rightArm"
+        targetSrc = targetSrc,
+        part = part or "rightArm",
+        patientPulse = targetPulse
     })
 end
 
