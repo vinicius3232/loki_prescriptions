@@ -174,6 +174,9 @@ local function healBoneCallback(source, targetId, data)
       end
 
       Bridge.Inventory.removeItem(source, data.item, 1, { bloodType = bloodType })
+      if VpNeedsBridge then
+        VpNeedsBridge.ApplyBloodTransfusion(targetId)
+      end
     end
   else
     -- Standard item removal

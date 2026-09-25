@@ -41,7 +41,9 @@ CreateThread(function()
                     local isOverdose = checkOverdose(src)
                     TriggerClientEvent('loki_prescriptions:client:applyMedicineEffects', src, med, isOverdose)
                     
-                    if Config.EnableVpNeedsIntegration and med.vp_effects and med.vp_effects.stress and med.vp_effects.stress < 0 then
+                    if VpNeedsBridge then
+                        VpNeedsBridge.ApplyMedicineEffects(src, med)
+                    elseif Config.EnableVpNeedsIntegration and med.vp_effects and med.vp_effects.stress and med.vp_effects.stress < 0 then
                         pcall(function()
                             if exports.vp_needs and exports.vp_needs.RelieveStress then
                                 exports.vp_needs:RelieveStress(src, math.abs(med.vp_effects.stress))
@@ -68,7 +70,9 @@ CreateThread(function()
                     local isOverdose = checkOverdose(src)
                     TriggerClientEvent('loki_prescriptions:client:applyMedicineEffects', src, med, isOverdose)
                     
-                    if Config.EnableVpNeedsIntegration and med.vp_effects and med.vp_effects.stress and med.vp_effects.stress < 0 then
+                    if VpNeedsBridge then
+                        VpNeedsBridge.ApplyMedicineEffects(src, med)
+                    elseif Config.EnableVpNeedsIntegration and med.vp_effects and med.vp_effects.stress and med.vp_effects.stress < 0 then
                         pcall(function()
                             if exports.vp_needs and exports.vp_needs.RelieveStress then
                                 exports.vp_needs:RelieveStress(src, math.abs(med.vp_effects.stress))

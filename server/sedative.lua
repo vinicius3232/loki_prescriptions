@@ -36,6 +36,9 @@ RegisterServerEvent('loki_prescriptions:server:sedatePlayer', function(targetSer
     local removed = Bridge.Inventory.removeItem(src, 'sedative', 1)
     if removed then
         TriggerClientEvent('loki_prescriptions:client:receiveSedative', target)
+        if VpNeedsBridge then
+            VpNeedsBridge.ApplySedation(target)
+        end
         Bridge.Notify.showNotify(src, 'Sedativo administrado com sucesso no paciente.', 'success')
     else
         Bridge.Notify.showNotify(src, 'Você não possui sedativo no inventário.', 'error')

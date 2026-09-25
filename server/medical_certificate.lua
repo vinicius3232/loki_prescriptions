@@ -72,6 +72,9 @@ RegisterServerEvent('loki_prescriptions:server:issueCertificate', function(data)
         Bridge.Notify.showNotify(src, ('Atestado de %d dia(s) emitido com sucesso!'):format(days), 'success')
         if recipientSrc ~= src then
             Bridge.Notify.showNotify(recipientSrc, ('Você recebeu um Atestado Médico de Dr(a). %s.'):format(doctorName), 'inform')
+            if NexusBridge then
+                NexusBridge.SendNotification(recipientSrc, 'LSMC Departamento Médico', ('Seu atestado médico de %d dia(s) foi homologado pelo Dr(a). %s.'):format(days, doctorName), 'docs')
+            end
         end
     else
         Bridge.Notify.showNotify(src, 'Mochila cheia. Não foi possível entregar o atestado.', 'error')

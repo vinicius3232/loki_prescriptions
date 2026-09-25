@@ -151,6 +151,9 @@ RegisterServerEvent('loki_prescriptions:createPrescription', function(rawPayload
         if recipientSrc ~= src then
             notify('info', _U('prescriptionGivenToPatient', GetCharacterName(recipientSrc)), _U('pharmacy'), src)
             notify('info', _U('prescriptionReceived', canonicalDoctorName), _U('pharmacy'), recipientSrc)
+            if NexusBridge then
+                NexusBridge.SendNotification(recipientSrc, 'LSMC Farmácia', ('Nova receita emitida pelo Dr(a). %s'):format(canonicalDoctorName), 'docs', { rx = true })
+            end
         else
             notify('info', _U('medsGiven'), _U('pharmacy'), src)
         end

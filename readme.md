@@ -171,6 +171,7 @@ Para aprofundar-se em cada aspecto do ecossistema, consulte nossos manuais dedic
 | [🗄️ **Esquema de Banco de Dados**](./docs/DATABASE_SCHEMA.md) | Definição de tabelas, índices, queries otimizadas e persistência. |
 | [🛡️ **Relatório de Auditoria de Segurança**](./docs/SECURITY_AUDIT_REPORT.md) | Análise OmniRoute (Codex + Sonnet), vetores mitigados e portão de qualidade. |
 | [🧬 **Integração Farmacológica com vp_needs**](./docs/INTEGRATION_VP_NEEDS.md) | Mapeamento de efeitos metabólicos, combate a náusea/tosse e mecânica de overdose. |
+| [🌐 **Integrações de Ecossistema (vp_needs & NexusOS)**](./docs/INTEGRATIONS_ECOSYSTEM.md) | Ponte fisiológica com vp_needs e app 'LSMC — Portal Clínico' no NexusOS. |
 
 ---
 
