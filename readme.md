@@ -158,6 +158,22 @@ Os seguintes itens médicos devem estar registrados no arquivo `ox_inventory/dat
 
 ---
 
+## 📚 Documentação Técnica Completa
+
+Para aprofundar-se em cada aspecto do ecossistema, consulte nossos manuais dedicados na pasta [`docs/`](./docs/):
+
+| Documento | Descrição |
+| :--- | :--- |
+| [🏛️ **Arquitetura do Sistema**](./docs/ARCHITECTURE.md) | Diagramas de fluxo, autoridade do servidor, ciclos de vida e net events. |
+| [📖 **Manual dos Módulos Clínicos**](./docs/MODULES_MANUAL.md) | Passo a passo de procedimentos (AED, Lucas 3, Raio-X, Maca Fernocot, RCP, etc.). |
+| [📦 **Catálogo de Itens & Inventário**](./docs/ITEMS_AND_INVENTORY.md) | Tabela completa de pesos, stacks, propriedades e setup no `ox_inventory`. |
+| [⚙️ **Guia de Configuração**](./docs/CONFIGURATION.md) | Explicação detalhada de todos os parâmetros de `config.lua` e `config_medical.lua`. |
+| [🗄️ **Esquema de Banco de Dados**](./docs/DATABASE_SCHEMA.md) | Definição de tabelas, índices, queries otimizadas e persistência. |
+| [🛡️ **Relatório de Auditoria de Segurança**](./docs/SECURITY_AUDIT_REPORT.md) | Análise OmniRoute (Codex + Sonnet), vetores mitigados e portão de qualidade. |
+| [🧬 **Integração Farmacológica com vp_needs**](./docs/INTEGRATION_VP_NEEDS.md) | Mapeamento de efeitos metabólicos, combate a náusea/tosse e mecânica de overdose. |
+
+---
+
 ## 👨‍💻 Créditos e Autoria
 
 - **Arquitetura & Engenharia:** Loki Scripts & Vinicius
