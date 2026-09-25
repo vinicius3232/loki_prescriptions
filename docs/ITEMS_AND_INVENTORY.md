@@ -22,6 +22,9 @@ Este documento contém a relação oficial de todos os itens utilizados pelo **L
 | `crutch` | Muleta Ortopédica | 1200 | Não | Sim | Sim | Auxílio de locomoção para membros inferiores lesionados. |
 | `wheelchair` | Cadeira de Rodas Hospitalar | 9000 | Não | Sim | Sim | Cadeira articulada para transporte de convalescentes. |
 | `medicbag` | Mochila de Trauma de Resgate | 1500 | Não | Sim | Sim | Recipiente móvel com suprimentos de primeiros socorros. |
+| `saline` | Bolsa de Soro Fisiológico 500ml | 500 | Sim | Sim | Sim | Infusão IV contínua de volemia e hidratação (vp_needs). |
+| `lucas3` | Compressor Cardíaco Mecânico LUCAS 3 | 12000 | Não | Sim | Sim | Dispositivo de massagem cardíaca contínua automatizada. |
+
 
 ---
 
@@ -189,5 +192,21 @@ Copie e cole este bloco no seu arquivo `resources/[ox]/ox_inventory/data/items.l
     stack = true,
     close = true,
     description = 'Analgésico opioide forte de retenção obrigatória.'
+},
+
+['saline'] = {
+    label = 'Bolsa de Soro Fisiológico 500ml',
+    weight = 500,
+    stack = true,
+    close = true,
+    description = 'Solução salina estéril para infusão intravenosa contínua de volemia e hidratação.'
+},
+
+['lucas3'] = {
+    label = 'Compressor Cardíaco LUCAS 3',
+    weight = 12000,
+    stack = false,
+    close = true,
+    description = 'Dispositivo mecânico de ressuscitação cardiopulmonar automatizada para emergências.'
 },
 ```

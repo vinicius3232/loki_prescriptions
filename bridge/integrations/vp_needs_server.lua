@@ -73,6 +73,29 @@ function VpNeedsBridge.ApplyBloodTransfusion(target)
     end)
 end
 
+--- Aplica reposição volêmica contínua de soro fisiológico
+---@param target number Source do paciente recebendo soro
+---@param thirst number Quantidade de hidratação restaurada
+---@param hunger number Quantidade de nutrição restaurada
+---@param stress number Quantidade de alívio de estresse
+function VpNeedsBridge.ApplySalineTick(target, thirst, hunger, stress)
+    if not VpNeedsBridge.IsActive() then return end
+    pcall(function()
+        if exports.vp_needs and exports.vp_needs.AdjustNeed then
+            if thirst and thirst > 0 then
+                exports.vp_needs:AdjustNeed(target, 'thirst', thirst)
+            end
+            if hunger and hunger > 0 then
+                exports.vp_needs:AdjustNeed(target, 'hunger', hunger)
+            end
+            if stress and stress > 0 then
+                exports.vp_needs:AdjustNeed(target, 'stress', -stress)
+            end
+        end
+    end)
+end
+
+
 --- Alívio profundo de estresse ao receber sedação clínica
 ---@param target number Source do paciente sedado
 function VpNeedsBridge.ApplySedation(target)
