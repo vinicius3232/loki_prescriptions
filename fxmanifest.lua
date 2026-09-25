@@ -39,12 +39,15 @@ server_scripts {
     'server/sedative.lua',
     'bridge/integrations/vp_needs_server.lua',
     'bridge/integrations/nexus_os_server.lua',
+    'bridge/integrations/vp_phone_server.lua',
+    'bridge/integrations/vp_tablet_server.lua',
 }
 
 client_scripts {
     'bridge/client.lua',
     'bridge/integrations/vp_needs_client.lua',
     'bridge/integrations/nexus_os_client.lua',
+    'bridge/integrations/vp_tablet_client.lua',
     'client/editable_functions.lua',
     'client/custom.lua',
     'client/client.lua',

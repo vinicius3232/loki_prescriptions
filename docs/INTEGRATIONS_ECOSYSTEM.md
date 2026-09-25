@@ -104,6 +104,36 @@ Quando um procedimento é homologado, o servidor aciona `NexusBridge.SendNotific
 
 ---
 
+## 📱 3. Integração com `vp_phone` (Smartphone dos Cidadãos)
+
+O [`vp_phone`](../vp_phone) é o smartphone padrão de todos os jogadores. O **Loki Medical Suite** despacha eventos nativos diretamente no ecossistema de apps do telefone:
+
+### 3.1 Notificações no App "Saúde" (Health)
+- **Receitas Médicas:** Ao emitir um receituário, o paciente recebe um aviso oficial com remetente *"LSMC Farmácia"* detalhando o médico prescritor e orientando a retirada no balcão.
+- **Atestados Médicos:** Ao receber dispensa laboral, o paciente é notificado em tempo real com os dias homologados e validade do documento.
+- **Alertas de Emergência:** Caso um paciente seja resgatado ou estabilizado, o sistema pode despachar avisos prioritários na tela de bloqueio do celular via `VpPhoneBridge.SendNotification()`.
+
+---
+
+## 📟 4. Integração com `vp_tablet` (MDT de Paramédicos & Despacho 10-47)
+
+O [`vp_tablet`](../vp_tablet) atua como a central tática de despacho e prontuário médico eletrônico dos socorristas:
+
+### 4.1 Despacho Tático de Emergência (Código 10-47)
+- Quando um paciente entra em estado crítico de coma sensorial, parada cardiorrespiratória ou quando manobras de RCP/Desfibrilador falham, o script executa:
+  ```lua
+  VpTabletBridge.CreateDispatch('Parada Cardíaca / Emergência Médica', 'Vítima inconsciente com instabilidade hemodinâmica.', coords, '10-47')
+  ```
+- O chamado cria um **blip sonoro e visual em tempo real** nos tablets de todas as viaturas de ambulância em patrulha.
+
+### 4.2 Prontuário Médico Automático (`lbtablet_ambulance_reports`)
+- Toda receita médica emitida e todo atestado médico homologado no **Loki Medical Suite** são registrados automaticamente no histórico clínico do paciente no tablet dos socorristas, garantindo auditoria e continuidade do atendimento hospitalar.
+
+### 4.3 Aplicativo Nativo "LSMC Receituário" no Tablet
+- O app vem pré-instalado na grade de serviços do tablet de socorristas (`defaultApp = true`), permitindo consultas e prescrições diretamente pelo dispositivo móvel.
+
+---
+
 ## 🔧 Como Testar e Validar as Integrações em Jogo
 
 1. **Teste de Farmacologia (`vp_needs`):**
@@ -116,4 +146,9 @@ Quando um procedimento é homologado, o servidor aciona `NexusBridge.SendNotific
    - Abra um notebook portátil (`laptop`) ou computador de mesa em um hospital.
    - Abra a **App Store** ou localize o ícone **LSMC — Portal Clínico** no Desktop.
    - Clique para abrir a central de ações do corpo médico.
-   - Emita uma receita médica mirando em um paciente e verifique o envio do push notification no celular dele!
+4. **Teste no Smartphone (`vp_phone`):**
+   - Emita uma receita mirando em um jogador. Verifique a notificação push surgindo no aplicativo de Saúde do celular do paciente.
+5. **Teste no MDT (`vp_tablet`):**
+   - Abra o tablet policial/médico (`/tablet` ou item `tablet`).
+   - Verifique o histórico de relatórios atualizado em tempo real e os chamados 10-47 de emergência médica.
+

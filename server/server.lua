@@ -154,6 +154,13 @@ RegisterServerEvent('loki_prescriptions:createPrescription', function(rawPayload
             if NexusBridge then
                 NexusBridge.SendNotification(recipientSrc, 'LSMC Farmácia', ('Nova receita emitida pelo Dr(a). %s'):format(canonicalDoctorName), 'docs', { rx = true })
             end
+            if VpPhoneBridge then
+                VpPhoneBridge.SendNotification(recipientSrc, 'LSMC Farmácia', ('Receita médica emitida pelo Dr(a). %s. Retire na farmácia.'):format(canonicalDoctorName), 'Health')
+            end
+            if VpTabletBridge then
+                local patientCid = GetPlayerIdentifier(recipientSrc)
+                VpTabletBridge.RecordAmbulanceReport(patientCid, canonicalDoctorName, 'Receituário Emitido', ('Medicamentos controlados prescritos para %s.'):format(GetCharacterName(recipientSrc)))
+            end
         else
             notify('info', _U('medsGiven'), _U('pharmacy'), src)
         end

@@ -75,6 +75,12 @@ RegisterServerEvent('loki_prescriptions:server:issueCertificate', function(data)
             if NexusBridge then
                 NexusBridge.SendNotification(recipientSrc, 'LSMC Departamento Médico', ('Seu atestado médico de %d dia(s) foi homologado pelo Dr(a). %s.'):format(days, doctorName), 'docs')
             end
+            if VpPhoneBridge then
+                VpPhoneBridge.SendNotification(recipientSrc, 'LSMC Atestado', ('Atestado de %d dia(s) homologado pelo Dr(a). %s.'):format(days, doctorName), 'Health')
+            end
+            if VpTabletBridge then
+                VpTabletBridge.RecordAmbulanceReport(patientCid, doctorName, 'Atestado Médico Oficial', ('Atestado de %d dia(s) homologado. Motivo: %s'):format(days, data.diagnosis or 'Avaliação Geral'))
+            end
         end
     else
         Bridge.Notify.showNotify(src, 'Mochila cheia. Não foi possível entregar o atestado.', 'error')
